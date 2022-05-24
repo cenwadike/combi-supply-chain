@@ -3,13 +3,19 @@ const hre = require("hardhat");
 async function main() {
   await hre.run('compile');
 
+  // const [deployer] = await ethers.getSigners();
+
+  // console.log("Deploying contracts with the account:", deployer.address);
+
+  // console.log("Account balance:", (await deployer.getBalance()).toString());
+
   // We get the contract to deploy
-  const Greeter = await hre.ethers.getContractFactory("Greeter");
-  const greeter = await Greeter.deploy("Hello, Hardhat!");
+  const SupplyChain = await hre.ethers.getContractFactory("SupplyChain");
+  const supplyChain = await SupplyChain.deploy("Hello, Hardhat!");
 
-  await greeter.deployed();
+  await supplyChain.deployed();
 
-  console.log("Greeter deployed to:", greeter.address);
+  console.log("SupplyChain deployed to:", supplyChain.address); 
 }
 
 // We recommend this pattern to be able to use async/await everywhere
