@@ -1,6 +1,5 @@
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
-import WalletConnect from './walletConnect'
 import Footer from '../components/Footer'
 import Head from '../components/Header'
 import Navbar from '../components/NavBar'
@@ -12,7 +11,7 @@ export default function Home() {
       <Navbar />
 
       <main className={styles.main}>
-        <WalletConnect />
+        <h1> WE ARE HERE </h1>
       </main>
 
       <Footer />

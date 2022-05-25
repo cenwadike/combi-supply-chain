@@ -1,8 +1,92 @@
-import Link from 'next/link';
-import { useState } from 'react';
+import Link from 'next/link'
+import { ethers } from "ethers"
+import { useState, useEffect } from 'react'
 
 export default function Navbar() {
-    const [active, setActive] = useState(false);
+
+    const [active, setActive] = useState(false)
+    const [userAccount, setUserAccount] = useState(null)
+    const [userBalance, setUserBalance] = useState(null)
+    const [chainName, setChainName] = useState(null)
+    const [chainId, setChainId] = useState(null)
+    const [errorMessage, setErrorMessage] = useState(null)
+    const [connectButtonText, setConnectButtonText] = useState("Connect Wallet")
+
+    const connectWalletHandler = () => {
+        MetaMaskClientCheck()
+    }
+
+    const isMetaMaskInstalled = () => {
+        const { ethereum } = window;
+        return Boolean(ethereum && ethereum.isMetaMask);
+    };
+
+    const MetaMaskClientCheck = () => {
+        if (!isMetaMaskInstalled()) {
+            return (
+                <button onClick={onClickInstallMetamask}> click here to install MetaMask</button>
+            )
+        } else {
+            onClickConnectMetamask()
+        }
+    };
+
+    const onClickInstallMetamask = () => {
+        return
+    }
+
+    const onClickConnectMetamask = async () => {
+        try {
+            await ethereum.request({ method: 'eth_requestAccounts' });
+            const result = await ethereum.request({ method: 'eth_accounts' })
+            accountChangeHandler(result[0])
+            getAccountBalance(result[0])
+        } catch (error) {
+            setErrorMessage(error.message);
+            console.error(error);
+        } finally {
+            const provider = new ethers.providers.Web3Provider(window.ethereum)
+            provider.getNetwork().then((result) => {
+                setChainId(result.chainId)
+                setChainName(result.name)
+            })
+        }
+    }
+
+    const getAccountBalance = async (account) => {
+        await ethereum.request({ method: 'eth_getBalance', params: [account, 'latest'] })
+            .then(balance => {
+                setUserBalance(ethers.utils.formatEther(balance));
+            })
+            .catch(error => {
+                setErrorMessage(error.message);
+            });
+    }
+
+    const accountChangeHandler = (newAccount) => {
+        setUserAccount(newAccount)
+        setConnectButtonText(newAccount)
+        getAccountBalance(newAccount.toString())
+    }
+
+    const chainChangedHandler = () => {
+        // reload the page to avoid any errors with chain change mid use of application
+        window.location.reload()
+    }
+
+    // listen for account changes
+    useEffect(() => {
+        const { ethereum } = window
+        ethereum.on('chainChanged', () => {
+            chainChangedHandler()
+        })
+        ethereum.on('accountsChanged', () => {
+            accountChangeHandler
+        })
+    })
+
+
+
 
     const handleClick = () => {
         setActive(!active);
@@ -44,7 +128,7 @@ export default function Navbar() {
                             <a className="p-2 lg:px-4 md:mx-2 text-indigo-600 text-center border border-transparent rounded hover:bg-indigo-100 hover:text-indigo-700 transition-colors duration-300">About</a>
                         </Link>
                         <Link href='/#'>
-                            <a className="p-2 lg:px-4 md:mx-2 bg-indigo-200 text-indigo-600 text-center border border-transparent rounded hover:bg-indigo-100 hover:text-indigo-700 transition-colors duration-300">Connect Wallet</a>
+                            <button onClick={ connectWalletHandler } className="p-2 lg:px-4 md:mx-2 bg-indigo-200 text-indigo-600 text-center border border-transparent rounded hover:bg-indigo-100 hover:text-indigo-700 transition-colors duration-300">{ connectButtonText }</button>
                         </Link>
                     </div>
                 </div>
