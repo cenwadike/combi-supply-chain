@@ -122,13 +122,13 @@ export default function Navbar() {
                 >
                     <div className='lg:inline-flex lg:flex-row lg:ml-auto lg:w-auto w-full lg:items-center items-start  flex flex-col lg:h-auto'>
                         <Link href='/dashboard'>
-                            <a className="p-2 lg:px-4 md:mx-2 text-indigo-600 text-center border border-transparent rounded hover:bg-indigo-100 hover:text-indigo-700 transition-colors duration-300">Dashboard</a>
+                            <a className="p-2 lg:px-4 md:mx-2 text-blue-700 text-center border border-transparent rounded hover:bg-indigo-300 hover:text-indigo-800 transition-colors duration-300">Dashboard</a>
                         </Link>
                         <Link href='/about'>
-                            <a className="p-2 lg:px-4 md:mx-2 text-indigo-600 text-center border border-transparent rounded hover:bg-indigo-100 hover:text-indigo-700 transition-colors duration-300">About</a>
+                            <a className="p-2 lg:px-4 md:mx-2 text-blue-700 text-center border border-transparent rounded hover:bg-indigo-300 hover:text-indigo-800 transition-colors duration-300">About</a>
                         </Link>
-                        <Link href='/#'>
-                            <button onClick={ connectWalletHandler } className="p-2 lg:px-4 md:mx-2 bg-indigo-200 text-indigo-600 text-center border border-transparent rounded hover:bg-indigo-100 hover:text-indigo-700 transition-colors duration-300">{ connectButtonText }</button>
+                        <Link href='/about'>
+                            <button onClick={ connectWalletHandler } className="p-2 lg:px-4 md:mx-2 bg-indigo-300 text-blue-700 text-center border border-transparent rounded hover:bg-indigo-900 hover:text-indigo-700 transition-colors duration-300">{ connectButtonText }</button>
                         </Link>
                     </div>
                 </div>
