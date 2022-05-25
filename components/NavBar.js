@@ -95,7 +95,7 @@ export default function Navbar() {
     return (
         <>
             <nav className='fixed w-full flex items-center flex-wrap bg-white px-2 py-2 navbar-expand-lg shadow-md'>
-                <Link href='/'>
+                <Link href='/about'>
                     <a className='inline-flex items-center p-2 mr-0'>
                         <svg
                             viewBox='0 0 24 24'
