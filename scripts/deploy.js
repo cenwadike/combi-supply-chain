@@ -1,21 +1,26 @@
-const hre = require("hardhat");
+const hre = require("hardhat")
+const fs = require('fs');
 
 async function main() {
-  await hre.run('compile');
+  await hre.run('compile')
 
-  // const [deployer] = await ethers.getSigners();
+  // const [deployer] = await ethers.getSigners()
 
-  // console.log("Deploying contracts with the account:", deployer.address);
+  // console.log("Deploying contracts with the account:", deployer.address)
 
-  // console.log("Account balance:", (await deployer.getBalance()).toString());
+  // console.log("Account balance:", (await deployer.getBalance()).toString())
 
   // We get the contract to deploy
-  const SupplyChain = await hre.ethers.getContractFactory("SupplyChain");
-  const supplyChain = await SupplyChain.deploy("Hello, Hardhat!");
+  const SupplyChain = await hre.ethers.getContractFactory("SupplyChain")
+  const supplyChain = await SupplyChain.deploy()
+  await supplyChain.deployed()
+  console.log("SupplyChain deployed to:", supplyChain.address)
 
-  await supplyChain.deployed();
-
-  console.log("SupplyChain deployed to:", supplyChain.address); 
+  let config = `
+  export const supplyChainAddress = "${supplyChain.address}"
+  `
+  let data = JSON.stringify(config)
+  fs.writeFileSync('config.js', JSON.parse(data))
 }
 
 // We recommend this pattern to be able to use async/await everywhere
