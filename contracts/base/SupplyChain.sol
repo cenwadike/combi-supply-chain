@@ -37,7 +37,7 @@ contract SupplyChain is
 
     struct Item {
         uint sku; // Stock Keeping Unit (SKU)
-        uint upc; // Universal Product Code (UPC)r
+        uint upc; // Universal Product Code (UPC)
         address ownerID; // address of the current owner
         address originFarmerID; // address of the Farmer
         string originFarmName; // Farmer Name
@@ -351,12 +351,12 @@ contract SupplyChain is
         emit Received(_upc);
     }
 
-    function purchaseItem(uint _upc) private received(_upc) onlyConsumer {
-        items[_upc].ownerID = msg.sender;
-        items[_upc].consumerID = msg.sender;
-        items[_upc].itemState = State.Purchased;
-        emit Purchased(_upc);
-    }
+    // function purchaseItem(uint _upc) private received(_upc) onlyConsumer {
+    //     items[_upc].ownerID = msg.sender;
+    //     items[_upc].consumerID = msg.sender;
+    //     items[_upc].itemState = State.Purchased;
+    //     emit Purchased(_upc);
+    // }
 
     //////////////////////////////////////////QUERIES
     function fetchItemBufferOne(uint _upc)

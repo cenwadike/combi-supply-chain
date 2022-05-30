@@ -25,6 +25,7 @@ module.exports = {
 
     AuroraTestnet: {
       url: "https://testnet.aurora.dev",
+      chainId: 1313161555,
       accounts: [privateKey]
     },
 
@@ -46,9 +47,9 @@ module.exports = {
       },
     ],
   },
-  
+
   gasReporter: {
-    enabled: process.env.REPORT_GAS !== undefined,
+    enabled: process.env.REPORT_GAS ? true : false,
     currency: "USD",
   },
   etherscan: {
