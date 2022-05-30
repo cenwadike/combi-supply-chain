@@ -119,7 +119,7 @@ export default function Navbar() {
                         <Link href='/dashboard'>
                             <a className="p-2 lg:px-4 md:mx-2 text-blue-700 text-center border border-transparent rounded hover:bg-indigo-300 hover:text-indigo-800 transition-colors duration-300">Dashboard</a>
                         </Link>
-                        <Link href='/about'>
+                        <Link href='/role'>
                         <a className="p-2 lg:px-4 md:mx-2 text-blue-700 text-center border border-transparent rounded hover:bg-indigo-300 hover:text-indigo-800 transition-colors duration-300">Role</a>
                         </Link>
                         <Link href='/about'>
