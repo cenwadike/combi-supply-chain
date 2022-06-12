@@ -1,17 +1,23 @@
-# Fair Trade Coffee
-Prove the authenticity of coffee using the Ethereum blockchain
+# AGROTRACE 
+Prove the authenticity of agricultural products using the EVM blockchain (Aurora)
 
 ## Contract address:
 
 ## Built with
 Hardhat v2.9.6
 
-node v12.16.1
+NextJs v12.1.0
 
-web3 v1.2.1
+node v16
+
+ethersJs v5.6.8
 
 ## Steps to interact with contract
 `npm i`
+
+`npx hardhat run scripts/deploy.js` for local env 
+
+`npm hardhat run scripts/deploy.js --network Aurora-Testnet` for testnet env
 
 `npm run dev`
 
