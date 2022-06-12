@@ -12,12 +12,15 @@
     "@emotion/styled": "^11.8.1",
     "@headlessui/react": "^1.6.3",
     "@openzeppelin/contracts": "^4.6.0",
+    "@popperjs/core": "^2.11.5",
     "axios": "^0.27.2",
+    "flowbite": "^1.4.7",
     "ipfs-http-client": "^56.0.3",
     "next": "12.1.6",
     "react": "18.1.0",
     "react-dom": "18.1.0",
-    "react-table": "^7.8.0"
+    "react-table": "^7.8.0",
+    "web3modal": "^1.9.7"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.6",

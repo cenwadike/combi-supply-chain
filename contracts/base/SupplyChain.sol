@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: UNLICENCED
 
 pragma solidity ^0.4.24;
+pragma experimental ABIEncoderV2;
 
-import "../coffeeaccesscontrol/FarmerRole.sol";
-import "../coffeeaccesscontrol/DistributorRole.sol";
-import "../coffeeaccesscontrol/RetailerRole.sol";
-import "../coffeeaccesscontrol/ConsumerRole.sol";
-import "../coffeecore/Ownable.sol";
+import "../accesscontrol/FarmerRole.sol";
+import "../accesscontrol/DistributorRole.sol";
+import "../accesscontrol/RetailerRole.sol";
+import "../accesscontrol/ConsumerRole.sol";
+import "../core/Ownable.sol";
 
 contract SupplyChain is
     FarmerRole,
@@ -212,7 +213,9 @@ contract SupplyChain is
             bytes1(0)
         );
 
-        addFarmer(msg.sender);
+        if (!isFarmer(msg.sender)) {
+            addFarmer(msg.sender);
+        }
 
         processItem(upc);
         sku += 1;
@@ -221,21 +224,21 @@ contract SupplyChain is
         emit Harvested(upc);
     }
 
-    function processItem(uint _upc) private harvested(_upc) onlyFarmer {
+    function processItem(uint _upc) private harvested(_upc) {
         items[_upc].itemState = State.Processed;
         traceHashes[_upc].packagedHash = blockhash(block.number);
         packagedItem(_upc);
         emit Processed(_upc);
     }
 
-    function packagedItem(uint _upc) private processed(_upc) onlyFarmer {
+    function packagedItem(uint _upc) private processed(_upc)  {
         items[_upc].itemState = State.Packaged;
         traceHashes[_upc].packagedHash = blockhash(block.number);
         sellToDist(_upc);
         emit Packaged(_upc);
     }
 
-    function sellToDist(uint _upc) private packaged(_upc) onlyFarmer {
+    function sellToDist(uint _upc) private packaged(_upc) {
         items[_upc].itemState = State.ForSale;
         traceHashes[_upc].sellToDistHash = blockhash(block.number);
         emit ForSale(_upc);
@@ -359,6 +362,33 @@ contract SupplyChain is
     // }
 
     //////////////////////////////////////////QUERIES
+    function fetchMyItems() public view returns (Item[] memory) {
+        uint itemCount = sku;
+        uint currentIndex = 0;
+
+        Item[] memory item = new Item[](itemCount);
+        for (uint i = 0; i < itemCount; i++) {
+            if (
+                items[i + 1].ownerID == msg.sender
+                // items[i + 1].originFarmerID == msg.sender ||
+                // items[i + 1].distributorID == msg.sender ||
+                // items[i + 1].retailerID == msg.sender ||
+                // items[i + 1].consumerID == msg.sender
+            ) {
+                uint currentId = i + 1;
+                Item storage currentproduct = items[currentId];
+                item[currentIndex] = currentproduct;
+                currentIndex += 1;
+            }
+        }
+        return item;
+    }
+
+    function fetchCurrentState(uint _upc) public view returns (uint itemState) {
+        Item memory item = items[_upc];
+        return uint(item.itemState);
+    }
+
     function fetchItemBufferOne(uint _upc)
         public
         view
