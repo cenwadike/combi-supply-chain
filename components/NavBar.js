@@ -189,9 +189,9 @@ export default function Navbar() {
                                 </a>
                             </Link>
                         </div>
-                        <Link href='/about'>
+                        {/* <Link href='/about'>
                             <a className="p-2 lg:px-4 md:mx-2 text-blue-700 text-center border border-transparent rounded hover:bg-indigo-300 hover:text-indigo-800 transition-colors duration-300">About</a>
-                        </Link>
+                        </Link> */}
                         <Link href='/dashboard'>
                             <button onClick={connectWalletHandler} className="p-2 lg:px-4 md:mx-2 bg-indigo-300 text-blue-700 text-center border border-transparent rounded hover:bg-indigo-900 hover:text-indigo-700 transition-colors duration-300">{connectButtonText}</button>
                         </Link>
