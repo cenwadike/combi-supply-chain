@@ -1,17 +1,18 @@
 import Link from 'next/link'
 import { ethers } from "ethers"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Web3Modal from 'web3modal'
 import { useRouter } from 'next/router'
 
 import { supplyChainAddress } from "../config"
 import SupplyChain from "../artifacts_/SupplyChain.sol/SupplyChain.json"
 
-// dashboard should allow user search for a product using it upc
+// dashboard should allow user add product to supply chain
+// dashboard should allow user see for all products
 // dashboard should display all ownerID products
-// dashboard should also list the first 10 product and previous owners(if any)
 export default function Dashboard() {
     const [userData, setUserData] = useState([])
+    const [loading, setLoading] = useState(false)
     const [upc, setUpc] = useState(null)
     const [buf1Data, setBuf1Data] = useState(null)
     const [buf2Data, setBuf2Data] = useState(null)
@@ -23,6 +24,11 @@ export default function Dashboard() {
     })
     const router = useRouter()
 
+    useEffect(() => {
+        loadData()
+            .then(setLoading(true))
+    }, [])
+
     async function loadData() {
         const web3Modal = new Web3Modal()
         const connection = await web3Modal.connect()
@@ -33,7 +39,8 @@ export default function Dashboard() {
             .then(
                 setUserData(_userData)
             )
-        const upcQueryHandler = async (_upc) => {
+        console.log(userData)
+        async (_upc) => {
             let _buf1Data = await supplyChainContract.fetchItemBufferOne(_upc)
                 .then(setBuf1Data(_buf1Data))
             let _buf2Data = await supplyChainContract.fetchItemBufferTwo(_upc)
@@ -43,6 +50,7 @@ export default function Dashboard() {
         }
     }
 
+    ////////////////////////////////add item to chain
     async function addItemToChain() {
         const { farmerName, farmName, farmLatitude, farmLongitude, productMeta, price } = formInput
         if (!farmerName || !farmName || !farmLatitude || !farmLongitude || !productMeta || !price) return
@@ -52,16 +60,17 @@ export default function Dashboard() {
         const provider = new ethers.providers.Web3Provider(connection)
         const signer = provider.getSigner()
         const supplyChainContract = new ethers.Contract(supplyChainAddress, SupplyChain.abi, signer)
+        const productPrice = ethers.utils.parseUnits(formInput.price, 'ether')
 
         supplyChainContract.harvestItem(
-            farmerName, farmName, farmLatitude, farmLongitude, productMeta, price
+            farmerName, farmName, farmLatitude, farmLongitude, productMeta, productPrice
         )
 
         setShowModal(false)
         router.push('/dashboard')
     }
 
-    if (userData === userData.length) {
+    if (loading == false && userData.length) {
         return (
             <>
                 <div className='pt-12 text-2xl md:text-4xl text-indigo-600 font-bold mb-12'>
@@ -71,8 +80,23 @@ export default function Dashboard() {
                             {
                                 userData.map((data, i) => (
                                     <div key={i} className="border shadow rounded-xl overflow-hidden">
-                                        <div className="p-4 bg-indigo-400">
-                                            <p className="text-2xl font-small text-white"> {data} </p>
+                                        <div className="p-4 bg-blue-300">
+                                            <p className="text-2xl font-small text-white">Farmer {data.farmerName} </p>
+                                        </div>
+                                        <div className="p-4 bg-blue-400">
+                                            <p className="text-2xl font-small text-white">Farm {data.farmName} </p>
+                                        </div>
+                                        <div className="p-4 bg-blue-400">
+                                            <p className="text-2xl font-small text-white">Latitude {data.farmLatitude} </p>
+                                        </div>
+                                        <div className="p-4 bg-blue-400">
+                                            <p className="text-2xl font-small text-white">Longitude {data.farmLongitude} </p>
+                                        </div>
+                                        <div className="p-4 bg-blue-400">
+                                            <p className="text-2xl font-small text-white">Product {data.productMeta} </p>
+                                        </div>
+                                        <div className="p-4 bg-blue-400">
+                                            <p className="text-2xl font-small text-white">Price {data.productPrice} </p>
                                         </div>
                                     </div>
                                 ))
@@ -80,7 +104,7 @@ export default function Dashboard() {
                         </div>
                     </div>
                 </div>
-                <div className='pt-12 text-2xl md:text-4xl text-indigo-600 font-bold mb-12'>
+                {/* <div className='pt-12 text-2xl md:text-4xl text-indigo-600 font-bold mb-12'>
                     <div className="p-4">
                         <h2 className="text-2xl py-2">products owned</h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
@@ -95,7 +119,7 @@ export default function Dashboard() {
                             }
                         </div>
                     </div>
-                </div>
+                </div> */}
             </>
         )
     } else {

@@ -25,11 +25,11 @@ contract FarmerRole {
         return farmers.has(account);
     }
 
-    function addFarmer(address account) public onlyFarmer {
+    function addFarmer(address account) public {
         _addFarmer(account);
     }
 
-    function renounceFarmer() public {
+    function renounceFarmer() public onlyFarmer {
         _removeFarmer(msg.sender);
     }
 

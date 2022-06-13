@@ -8,30 +8,30 @@ pragma solidity ^0.4.24;
  */
 
 library Roles {
-  struct Role {
-    mapping (address => bool) bearer;
-  }
+    struct Role {
+        mapping(address => bool) bearer;
+    }
 
-  function add(Role storage role, address account) internal {
-    require(account != address(0), "INVALID: DEAD Address");
-    require(!has(role, account), "INVALID: Account Have Role");
+    function add(Role storage role, address account) internal {
+        require(account != address(0), "INVALID: DEAD Address");
+        require(!has(role, account), "INVALID: Account Have Role");
 
-    role.bearer[account] = true;
-  }
+        role.bearer[account] = true;
+    }
 
-  function remove(Role storage role, address account) internal {
-    require(account != address(0), "INVALID: DEAD Address");
-    require(has(role, account), "INVALID: Account Have No Role");
+    function remove(Role storage role, address account) internal {
+        require(account != address(0), "INVALID: DEAD Address");
+        require(has(role, account), "INVALID: Account Have No Role");
 
-    role.bearer[account] = false;
-  }
+        role.bearer[account] = false;
+    }
 
-  function has(Role storage role, address account)
-    internal
-    view
-    returns (bool)
-  {
-    require(account != address(0), "INVALID: DEAD Address");
-    return role.bearer[account];
-  }
+    function has(Role storage role, address account)
+        internal
+        view
+        returns (bool)
+    {
+        require(account != address(0), "INVALID: DEAD Address");
+        return role.bearer[account];
+    }
 }

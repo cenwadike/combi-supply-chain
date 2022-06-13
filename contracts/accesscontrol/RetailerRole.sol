@@ -25,11 +25,11 @@ contract RetailerRole {
         return retailers.has(account);
     }
 
-    function addRetailer(address account) public onlyRetailer {
+    function addRetailer(address account) public {
         _addRetailer(account);
     }
 
-    function renounceRetailer() public {
+    function renounceRetailer() public onlyRetailer {
         _removeRetailer(msg.sender);
     }
 

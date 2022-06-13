@@ -203,23 +203,23 @@ contract SupplyChain is
         );
         traceHashes[upc] = TraceHash(
             blockhash(block.number),
-            bytes1(0),
-            bytes1(0),
-            bytes1(0),
-            bytes1(0),
-            bytes1(0),
-            bytes1(0),
-            bytes1(0),
-            bytes1(0)
+            bytes32(0),
+            bytes32(0),
+            bytes32(0),
+            bytes32(0),
+            bytes32(0),
+            bytes32(0),
+            bytes32(0),
+            bytes32(0)
         );
-
-        if (!isFarmer(msg.sender)) {
-            addFarmer(msg.sender);
-        }
 
         processItem(upc);
         sku += 1;
         upc += 1;
+
+        if (!isFarmer(msg.sender)) {
+            addFarmer(msg.sender);
+        }
 
         emit Harvested(upc);
     }
@@ -231,7 +231,7 @@ contract SupplyChain is
         emit Processed(_upc);
     }
 
-    function packagedItem(uint _upc) private processed(_upc)  {
+    function packagedItem(uint _upc) private processed(_upc) {
         items[_upc].itemState = State.Packaged;
         traceHashes[_upc].packagedHash = blockhash(block.number);
         sellToDist(_upc);
@@ -252,13 +252,15 @@ contract SupplyChain is
         paidEnough(items[_upc].productPrice)
         checkValue(_upc)
     {
-        addDistributor(msg.sender);
-
         traceHashes[_upc].buyAsDistHash = blockhash(block.number);
         items[_upc].ownerID = msg.sender;
         items[_upc].distributorID = msg.sender;
         items[_upc].itemState = State.SoldToDist;
         items[_upc].originFarmerID.transfer(items[_upc].productPrice);
+
+        if (!isDistributor(msg.sender)) {
+            addDistributor(msg.sender);
+        }
 
         emit SoldToDist(_upc);
     }
@@ -294,12 +296,14 @@ contract SupplyChain is
         paidEnough(items[_upc].productPrice)
         checkValue(_upc)
     {
-        addRetailer(msg.sender);
-
         traceHashes[_upc].buyAsRetailHash = blockhash(block.number);
         items[_upc].ownerID = msg.sender;
         items[_upc].itemState = State.SoldToRetail;
         items[_upc].distributorID.transfer(items[_upc].productPrice);
+
+        if (!isRetailer(msg.sender)) {
+            addRetailer(msg.sender);
+        }
 
         receiveAsRetail(_upc);
         emit SoldToRetail(_upc);
@@ -334,12 +338,14 @@ contract SupplyChain is
         paidEnough(items[_upc].productPrice)
         checkValue(_upc)
     {
-        addConsumer(msg.sender);
-
         traceHashes[_upc].buyAsConsumerHash = blockhash(block.number);
         items[_upc].ownerID = msg.sender;
         items[_upc].itemState = State.SoldToConsumer;
         items[_upc].retailerID.transfer(items[_upc].productPrice);
+
+        if (!isConsumer(msg.sender)) {
+            addConsumer(msg.sender);
+        }
 
         receiveAsConsumer(_upc);
         emit SoldToConsumer(_upc);

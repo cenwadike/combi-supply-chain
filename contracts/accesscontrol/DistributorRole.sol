@@ -25,11 +25,11 @@ contract DistributorRole {
         return distributors.has(account);
     }
 
-    function addDistributor(address account) public onlyDistributor {
+    function addDistributor(address account) public {
         _addDistributor(account);
     }
 
-    function renounceDistributor() public {
+    function renounceDistributor() public onlyDistributor {
         _removeDistributor(msg.sender);
     }
 

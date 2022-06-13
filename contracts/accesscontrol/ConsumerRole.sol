@@ -25,11 +25,11 @@ contract ConsumerRole {
         return consumers.has(account);
     }
 
-    function addConsumer(address account) public onlyConsumer {
+    function addConsumer(address account) public {
         _addConsumer(account);
     }
 
-    function renounceConsumer() public {
+    function renounceConsumer() public onlyConsumer {
         _removeConsumer(msg.sender);
     }
 
