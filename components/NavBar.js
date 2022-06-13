@@ -114,11 +114,13 @@ export default function Navbar() {
     return (
         <>
             <nav className='fixed w-full flex items-center flex-wrap bg-white px-2 py-2 navbar-expand-lg shadow-md'>
-                <a className='inline-flex items-center p-2 mr-0'>
-                    <span className='text-xl text-blue-700 hover:text-indigo-800 font-bold uppercase tracking-wide'>
-                        AgroTrace
-                    </span>
-                </a>
+                <Link href="/">
+                    <a className='inline-flex items-center p-2 mr-0'>
+                        <span className='text-xl text-blue-700 hover:text-indigo-800 font-bold uppercase tracking-wide'>
+                            AgroTrace
+                        </span>
+                    </a>
+                </Link>
                 <button
                     className=' inline-flex p-3 hover:bg-indigo-600 rounded lg:hidden text-indigo-600 ml-auto hover:text-white outline-none'
                     onClick={handleClick}

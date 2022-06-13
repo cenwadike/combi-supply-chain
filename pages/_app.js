@@ -1,16 +1,16 @@
-import Home from '.'
 import '../styles/globals.css'
 import Footer from '../components/Footer'
-import About from '../pages/about'
+import Head from '../components/Header'
+import Navbar from '../components/NavBar'
 
 
 function MyApp({ Component, pageProps }) {
 
   return (
     <>
-      <Home />
+      <Head />
+      <Navbar />
       <Component {...pageProps} />
-      <About />
       <Footer />
     </>
   )
