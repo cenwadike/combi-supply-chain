@@ -170,8 +170,8 @@ contract SupplyChain is
     ////////////////////////////////BODY
     constructor() public {
         owner = msg.sender;
-        sku = 1;
-        upc = 2;
+        sku = 0;
+        upc = 0;
     }
 
     //////////////////////////////////////////farmer's call
@@ -373,14 +373,8 @@ contract SupplyChain is
         uint currentIndex = 0;
 
         Item[] memory item = new Item[](itemCount);
-        for (uint i = 0; i < itemCount; i++) {
-            if (
-                items[i + 1].ownerID == msg.sender
-                // items[i + 1].originFarmerID == msg.sender ||
-                // items[i + 1].distributorID == msg.sender ||
-                // items[i + 1].retailerID == msg.sender ||
-                // items[i + 1].consumerID == msg.sender
-            ) {
+        for (uint i = 0; i <= itemCount; i++) {
+            if (items[i].ownerID == msg.sender) {
                 uint currentId = i + 1;
                 Item storage currentproduct = items[currentId];
                 item[currentIndex] = currentproduct;
