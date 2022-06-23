@@ -1,0 +1,45 @@
+
+
+
+
+//////////////////////////////////product table
+  const tableData = useMemo(() => userData);
+  const tableColumn = useMemo(() => [
+    {
+      Header: "OWNER",
+      accessor: "owner",
+    },
+    {
+      Header: "SKU",
+      accessor: "sku",
+    },
+    {
+      Header: "UPC",
+      accessor: "upc",
+    },
+    {
+      Header: "FARMER",
+      accessor: "farmer",
+    },
+    {
+      Header: "DISTRIBUTOR",
+      accessor: "distributor",
+    },
+    {
+      Header: "RETAILER",
+      accessor: "retailer",
+    },
+    {
+      Header: "CONSUMER",
+      accessor: "consumer",
+    },
+    {
+      Header: "STATE",
+      accessor: "state",
+    },
+    {
+      Header: "PRICE",
+      accessor: "price",
+    },
+    [],
+  ]);
