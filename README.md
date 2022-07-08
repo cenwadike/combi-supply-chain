@@ -1,5 +1,5 @@
 # AGROTRACE 
-Prove the authenticity of agricultural products using the EVM blockchain (Aurora)
+Prove the authenticity of agricultural products using the EVM blockchain (Polygon)
 
 ## Contract address:
 
