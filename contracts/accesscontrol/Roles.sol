@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: UNLICENCED
 
-pragma solidity ^0.4.24;
+pragma solidity ^0.8.6;
 
 /**
  * @title Roles

@@ -6,7 +6,7 @@ import { useState, useEffect, createRef } from "react";
 export default function Navbar() {
   ////////////////////////////////metamask state
   const [userAccount, setUserAccount] = useState(null);
-  const [userBalance, setUserBalance] = useState(null);
+  // const [userBalance, setUserBalance] = useState(null);
   const [chainName, setChainName] = useState(null);
   const [chainId, setChainId] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
@@ -14,7 +14,12 @@ export default function Navbar() {
 
   ////////////////////////////////metamask state handlers
   const connectWalletHandler = () => {
-    MetaMaskClientCheck();
+    try {
+      MetaMaskClientCheck();
+    } catch (error) {
+      console.log(error);
+      return;
+    }
   };
 
   const isMetaMaskInstalled = () => {
@@ -26,7 +31,11 @@ export default function Navbar() {
     if (!isMetaMaskInstalled()) {
       return <button onClick={onClickInstallMetamask}> click here to install MetaMask</button>;
     } else {
-      onClickConnectMetamask();
+      try {
+        onClickConnectMetamask();
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
@@ -52,16 +61,16 @@ export default function Navbar() {
     }
   };
 
-  const getAccountBalance = async (account) => {
-    await ethereum
-      .request({ method: "eth_getBalance", params: [account, "latest"] })
-      .then((balance) => {
-        setUserBalance(ethers.utils.formatEther(balance));
-      })
-      .catch((error) => {
-        setErrorMessage(error.message);
-      });
-  };
+  // const getAccountBalance = async (account) => {
+  //   await ethereum
+  //     .request({ method: "eth_getBalance", params: [account, "latest"] })
+  //     .then((balance) => {
+  //       setUserBalance(ethers.utils.formatEther(balance));
+  //     })
+  //     .catch((error) => {
+  //       setErrorMessage(error.message);
+  //     });
+  // };
 
   const accountChangeHandler = (newAccount) => {
     setUserAccount(newAccount);
@@ -84,6 +93,10 @@ export default function Navbar() {
       accountChangeHandler;
     });
   });
+
+  useEffect(() => {
+    onClickConnectMetamask();
+  }, []);
 
   ////////////////////////////////hamburger state
   const [active, setActive] = useState(false);
@@ -163,7 +176,7 @@ export default function Navbar() {
                   : "hidden " + "text-base z-50 float-left py-2 list-none text-left shadow-lg mt-1"
               }
               style={{ minWidth: "12rem" }}>
-              <Link href='/dashboard'>
+              <Link href='/farmerDashboard'>
                 <a
                   className={
                     "text-sm py-2 px-4 font-normal block w-full whitespace-nowrap text-white hover:text-indigo-300 bg-blue-900 border-0"
@@ -172,7 +185,7 @@ export default function Navbar() {
                   farmer
                 </a>
               </Link>
-              <Link href='/dashboard'>
+              <Link href='/distributorDashboard'>
                 <a
                   className={
                     "text-sm py-2 px-4 font-normal block w-full whitespace-nowrap text-white hover:text-indigo-300 bg-blue-900 border-0"
@@ -181,7 +194,7 @@ export default function Navbar() {
                   distributor
                 </a>
               </Link>
-              <Link href='/dashboard'>
+              <Link href='/retailerDashboard'>
                 <a
                   className={
                     "text-sm py-2 px-4 font-normal block w-full whitespace-nowrap text-white hover:text-indigo-300 bg-blue-900 border-0" +
@@ -191,7 +204,7 @@ export default function Navbar() {
                   retailer
                 </a>
               </Link>
-              <Link href='/dashboard'>
+              <Link href='/consumerDashboard'>
                 <a
                   className='text-sm py-2 px-4 font-normal block w-full whitespace-nowrap text-white hover:text-indigo-300 bg-blue-900 border-0'
                   onClick={() => setRoleButtonText("Consumer")}>

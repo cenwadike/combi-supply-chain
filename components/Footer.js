@@ -5,7 +5,7 @@ export default function Footer() {
         <div>
           <h2 className='text-center text-blue-800 font-bold'>
             <a
-              href='https://github.com/cenwadike/energi'
+              href='https://github.com/cenwadike/combi-supply-chain'
               className='border-solid border-transparent hover:border-blue-900 hover:text-blue-900'>
               &copy; cenwadike 2022{" "}
             </a>{" "}

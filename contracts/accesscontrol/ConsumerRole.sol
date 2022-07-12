@@ -1,6 +1,6 @@
 //SPDX-License-Identifier: Unlicense
 
-pragma solidity ^0.4.24;
+pragma solidity ^0.8.6;
 
 import "./Roles.sol";
 
@@ -17,7 +17,7 @@ contract ConsumerRole {
         _;
     }
 
-    constructor() public {
+    constructor() {
         _addConsumer(msg.sender);
     }
 

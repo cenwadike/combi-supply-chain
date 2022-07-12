@@ -1,6 +1,6 @@
 //SPDX-License-Identifier: UNLICENCED
 
-pragma solidity ^0.4.24;
+pragma solidity ^0.8.6;
 
 contract Ownable {
     address private origOwner;
@@ -12,7 +12,7 @@ contract Ownable {
         _;
     }
 
-    constructor() internal {
+    constructor() {
         origOwner = msg.sender;
         emit TransferOwnership(address(0), origOwner);
     }

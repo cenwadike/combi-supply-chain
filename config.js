@@ -1,3 +1,3 @@
 
-  export const supplyChainAddress = "0x3594144dA377E09B0CB74945ee5c41fD674e67DF"
+  export const supplyChainAddress = "0x55Ff1F88A24166b0deF0F9a614ED7df0005286eB"
   
