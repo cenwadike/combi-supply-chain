@@ -1,7 +1,127 @@
-export default function DistributorDashboard() {
-  return (
-    <div className='width: 100%'>
-      <h> Distributor Board</h>
-    </div>
-  );
+import Link from "next/link";
+import { ethers } from "ethers";
+import Web3Modal from "web3modal";
+import { useRouter } from "next/router";
+import { useState, useEffect } from "react";
+
+import { supplyChainAddress } from "../config";
+import SupplyChain from "../artifacts_/SupplyChain.json";
+
+// dashboard should allow farmer add product to supply chain
+// dashboard should display all of farmer products
+export default function Dashboard() {
+  const [userData, setUserData] = useState([]);
+  const [loading, setLoading] = useState("loading");
+  const [showModal, setShowModal] = useState(false);
+  const [formInput, updateFormInput] = useState({
+    farmerName: "",
+    farmName: "",
+    farmLatitude: "",
+    farmLongitude: "",
+    productMeta: "",
+    price: "",
+  });
+  const router = useRouter();
+
+  useEffect(() => {
+    loadData().then(setLoading("loaded"));
+  }, []);
+
+  //////////////////////////////////load data from blockchain
+  async function loadData() {
+    let web3Modal;
+    try {
+      web3Modal = new Web3Modal();
+    } catch (error) {
+      console.log("User rejected, input wallet password");
+    }
+    const connection = await web3Modal.connect();
+    const provider = new ethers.providers.Web3Provider(connection);
+    const signer = provider.getSigner();
+    const supplyChainContract = new ethers.Contract(supplyChainAddress, SupplyChain.abi, signer);
+    const items = await supplyChainContract.fetchFarmerItems();
+
+    const data = await Promise.all(
+      items.map(async (i) => {
+        let price = ethers.utils.formatUnits(i.productPrice.toString(), "ether");
+        let sku = ethers.utils.formatUnits(i.sku, 0);
+        let upc = ethers.utils.formatUnits(i.upc, 0);
+
+        let state = 3;
+        switch (i.itemState) {
+          case 3:
+            state = "for sale";
+            break;
+          case 4:
+            state = "sold";
+            break;
+          case 5:
+            state = "shipped";
+            break;
+          case 6:
+            state = "recieved";
+            break;
+          case 7:
+            state = "purchased";
+            break;
+          default:
+            state = "harvested";
+        }
+
+        let uData = {
+          farm: i.originFarmMetadata,
+          sku: sku,
+          upc: upc,
+          owner: i.owner,
+          distributorId: i.distributorID,
+          price: price,
+          state: state,
+        };
+
+        return uData;
+      })
+    );
+
+    setUserData(data);
+    console.log("users", data);
+  }
+
+  //////////////////////////////////display products
+  if (loading == "loaded") {
+    return (
+      <>
+        <div className='pt-12 text-2xl md:text-4xl text-blue-800 font-bold mb-12'>
+          <div className='p-4'>
+            <h2 className='text-2xl font-bold uppercase py-2'>Products</h2>
+            <div className='grid justify-items-stretch sm:grid-cols-2 gap-4 pt-4'>
+              {userData.map(({ farm, distributorId, sku, upc, price, state }) => {
+                return (
+                  <div key={sku} className='border shadow rounded-xl overflow-hidden'>
+                    <div className='p-4 flex justify-center bg-blue-800 border-t border-solid border-slate-200'>
+                      <p className='text-xl font-small text-white'>FARM - {farm}</p>
+                    </div>
+                    <div className='p-4 flex justify-center bg-blue-800 border-t border-solid border-slate-200'>
+                      <p className='text-xl font-small text-white'>SKU - {sku}</p>
+                    </div>
+                    <div className='p-4 flex justify-center bg-blue-800 border-t border-solid border-slate-200'>
+                      <p className='text-xl font-small text-white'>UPC - {upc}</p>
+                    </div>
+                    <div className='p-4 flex justify-center bg-blue-800 border-t border-solid border-slate-200'>
+                      <p className='text-xl font-small text-white'>PRICE - {price}</p>
+                    </div>
+                    <div className='p-4 flex justify-center bg-blue-800 border-t border-solid border-slate-200'>
+                      <p className='text-xl font-small text-white'>STATE - {state}</p>
+                    </div>
+                    <div className='p-4 flex justify-center bg-blue-800 border-t border-solid border-slate-200'>
+                      <p className='text-xl font-small text-white'>DIST_ID - {distributorId}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
 }

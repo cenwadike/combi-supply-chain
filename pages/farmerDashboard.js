@@ -120,32 +120,30 @@ export default function Dashboard() {
           <div className='p-4'>
             <h2 className='text-2xl font-bold uppercase py-2'>Products</h2>
             <div className='grid justify-items-stretch sm:grid-cols-2 gap-4 pt-4'>
-              {userData.map(
-                ({ farmer, farmerId, sku, upc, distributor, retailer, consumer, price, state }) => {
-                  return (
-                    <div key={sku} className='border shadow rounded-xl overflow-hidden'>
-                      <div className='p-4 flex justify-center bg-blue-800 border-t border-solid border-slate-200'>
-                        <p className='text-xl font-small text-white'>FARMER - {farmer}</p>
-                      </div>
-                      <div className='p-4 flex justify-center bg-blue-800 border-t border-solid border-slate-200'>
-                        <p className='text-xl font-small text-white'>SKU - {sku}</p>
-                      </div>
-                      <div className='p-4 flex justify-center bg-blue-800 border-t border-solid border-slate-200'>
-                        <p className='text-xl font-small text-white'>UPC - {upc}</p>
-                      </div>
-                      <div className='p-4 flex justify-center bg-blue-800 border-t border-solid border-slate-200'>
-                        <p className='text-xl font-small text-white'>PRICE - {price}</p>
-                      </div>
-                      <div className='p-4 flex justify-center bg-blue-800 border-t border-solid border-slate-200'>
-                        <p className='text-xl font-small text-white'>STATE - {state}</p>
-                      </div>
-                      <div className='p-4 flex justify-center bg-blue-800 border-t border-solid border-slate-200'>
-                        <p className='text-xl font-small text-white'>FARMER_ID - {farmerId}</p>
-                      </div>
+              {userData.map(({ farmer, farmerId, sku, upc, price, state }) => {
+                return (
+                  <div key={sku} className='border shadow rounded-xl overflow-hidden'>
+                    <div className='p-4 flex justify-center bg-blue-800 border-t border-solid border-slate-200'>
+                      <p className='text-xl font-small text-white'>FARMER - {farmer}</p>
                     </div>
-                  );
-                }
-              )}
+                    <div className='p-4 flex justify-center bg-blue-800 border-t border-solid border-slate-200'>
+                      <p className='text-xl font-small text-white'>SKU - {sku}</p>
+                    </div>
+                    <div className='p-4 flex justify-center bg-blue-800 border-t border-solid border-slate-200'>
+                      <p className='text-xl font-small text-white'>UPC - {upc}</p>
+                    </div>
+                    <div className='p-4 flex justify-center bg-blue-800 border-t border-solid border-slate-200'>
+                      <p className='text-xl font-small text-white'>PRICE - {price}</p>
+                    </div>
+                    <div className='p-4 flex justify-center bg-blue-800 border-t border-solid border-slate-200'>
+                      <p className='text-xl font-small text-white'>STATE - {state}</p>
+                    </div>
+                    <div className='p-4 flex justify-center bg-blue-800 border-t border-solid border-slate-200'>
+                      <p className='text-xl font-small text-white'>FARMER_ID - {farmerId}</p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
