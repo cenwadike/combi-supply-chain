@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { ethers } from "ethers";
 import Web3Modal from "web3modal";
-import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 
 import { supplyChainAddress } from "../config";
