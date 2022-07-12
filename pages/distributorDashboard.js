@@ -7,21 +7,10 @@ import { useState, useEffect } from "react";
 import { supplyChainAddress } from "../config";
 import SupplyChain from "../artifacts_/SupplyChain.json";
 
-// dashboard should allow farmer add product to supply chain
-// dashboard should display all of farmer products
+// dashboard should display all of distributor products
 export default function Dashboard() {
   const [userData, setUserData] = useState([]);
   const [loading, setLoading] = useState("loading");
-  const [showModal, setShowModal] = useState(false);
-  const [formInput, updateFormInput] = useState({
-    farmerName: "",
-    farmName: "",
-    farmLatitude: "",
-    farmLongitude: "",
-    productMeta: "",
-    price: "",
-  });
-  const router = useRouter();
 
   useEffect(() => {
     loadData().then(setLoading("loaded"));
@@ -39,7 +28,7 @@ export default function Dashboard() {
     const provider = new ethers.providers.Web3Provider(connection);
     const signer = provider.getSigner();
     const supplyChainContract = new ethers.Contract(supplyChainAddress, SupplyChain.abi, signer);
-    const items = await supplyChainContract.fetchFarmerItems();
+    const items = await supplyChainContract.fetchDistributorItems();
 
     const data = await Promise.all(
       items.map(async (i) => {
