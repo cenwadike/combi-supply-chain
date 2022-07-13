@@ -48,7 +48,7 @@ export default function Navbar() {
       await ethereum.request({ method: "eth_requestAccounts" });
       const result = await ethereum.request({ method: "eth_accounts" });
       accountChangeHandler(result[0]);
-      getAccountBalance(result[0]);
+      // getAccountBalance(result[0]);
     } catch (error) {
       setErrorMessage(error.message);
       console.error(error);

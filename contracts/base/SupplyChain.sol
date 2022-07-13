@@ -43,8 +43,8 @@ contract SupplyChain is
     mapping(uint256 => Item) private items;
 
     struct TraceHash {
+        uint256 upc; // product upc
         bytes32 harvestedHash; // hash of product harvest
-        bytes32 packagedHash; // hash of product being packaged
         bytes32 sellToDistHash; // hash of product being placed on sale to distributor
         bytes32 buyAsDistHash; // hash of product being bought by distributor
         bytes32 sellToRetailHash; // hash of product being placed on sale to retailer
@@ -167,8 +167,8 @@ contract SupplyChain is
         );
 
         traceHashes[upc.current()] = TraceHash(
-            blockhash(block.number),
-            bytes32(0),
+            upc.current(),
+            blockhash(block.number - 1),
             bytes32(0),
             bytes32(0),
             bytes32(0),
@@ -188,7 +188,7 @@ contract SupplyChain is
 
     function sellToDist(uint256 _upc) private {
         items[_upc].itemState = State.ForSale;
-        traceHashes[_upc].sellToDistHash = blockhash(block.number);
+        traceHashes[_upc].sellToDistHash = blockhash(block.number - 1);
         emit ForSale(_upc);
     }
 
@@ -208,7 +208,7 @@ contract SupplyChain is
         items[_upc].itemState = State.SoldToDist;
         items[_upc].productPrice = _newPrice;
 
-        traceHashes[_upc].buyAsDistHash = blockhash(block.number);
+        traceHashes[_upc].buyAsDistHash = blockhash(block.number - 1);
 
         if (!isDistributor(msg.sender)) {
             addDistributor(msg.sender);
@@ -235,7 +235,7 @@ contract SupplyChain is
 
         items[_upc].retailerID = payable(msg.sender);
 
-        traceHashes[_upc].buyAsRetailHash = blockhash(block.number);
+        traceHashes[_upc].buyAsRetailHash = blockhash(block.number - 1);
 
         payable(items[_upc].distributorID).transfer(items[_upc].productPrice);
 
@@ -252,7 +252,7 @@ contract SupplyChain is
     function sellToRetail(uint256 _upc, uint256 _newPrice) private {
         items[_upc].itemState = State.SoldToRetail;
         items[_upc].productPrice = _newPrice;
-        traceHashes[_upc].sellToRetailHash = blockhash(block.number);
+        traceHashes[_upc].sellToRetailHash = blockhash(block.number - 1);
         emit SoldToRetail(_upc);
 
         shipItem(_upc);
@@ -287,7 +287,7 @@ contract SupplyChain is
         );
         items[_upc].consumerID = payable(msg.sender);
         items[_upc].itemState = State.ForSale;
-        traceHashes[_upc].buyAsConsumerHash = blockhash(block.number);
+        traceHashes[_upc].buyAsConsumerHash = blockhash(block.number - 1);
 
         sellToConsumer(_upc);
 
@@ -303,7 +303,7 @@ contract SupplyChain is
 
     function sellToConsumer(uint256 _upc) private forSale(_upc) {
         items[_upc].itemState = State.SoldToConsumer;
-        traceHashes[_upc].sellToConsumerHash = blockhash(block.number);
+        traceHashes[_upc].sellToConsumerHash = blockhash(block.number - 1);
         items[_upc].ownerID = items[_upc].consumerID;
     }
 
@@ -435,13 +435,50 @@ contract SupplyChain is
         return products;
     }
 
-    // function fetchItemTraceHashes(uint256 _upc)
-    //     public
-    //     view
-    //     returns (TraceHash[]  memory trace)
-    // {
-    //     trace = traceHashes[_upc];
-    // }
+    function fetchItems() public view returns (Item[] memory) {
+        uint256 itemCount = sku.current();
+        uint currentIndex = 0;
+
+        Item[] memory products = new Item[](itemCount);
+        for (uint256 i = 0; i <= itemCount; i++) {
+            if (items[i + 1].ownerID != address(0)) {
+                uint256 currentId = i + 1;
+                Item storage currentproduct = items[currentId];
+                products[currentIndex] = currentproduct;
+                currentIndex += 1;
+            }
+        }
+        return products;
+    }
+
+    function fetchItemHashes(uint _upc)
+        public
+        view
+        returns (TraceHash[] memory)
+    {
+        uint256 itemCount = sku.current();
+        uint currentIndex = 0;
+
+        TraceHash[] memory productHash = new TraceHash[](itemCount);
+        for (uint256 i = 0; i <= itemCount; i++) {
+            if (traceHashes[i + 1].upc == _upc) {
+                uint256 currentId = i + 1;
+                TraceHash storage currentproductHash = traceHashes[currentId];
+                productHash[currentIndex] = currentproductHash;
+                currentIndex += 1;
+            }
+        }
+        return productHash;
+    }
+
+    function fetchCurrentPrice(uint256 _upc)
+        public
+        view
+        returns (uint256 price)
+    {
+        Item memory item = items[_upc];
+        return item.productPrice;
+    }
 
     function fetchCurrentState(uint256 _upc)
         public

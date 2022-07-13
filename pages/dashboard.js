@@ -43,7 +43,7 @@ export default function Dashboard() {
     const provider = new ethers.providers.Web3Provider(connection);
     const signer = provider.getSigner();
     const supplyChainContract = new ethers.Contract(supplyChainAddress, SupplyChain.abi, signer);
-    const items = await supplyChainContract.fetchMyItems();
+    const items = await supplyChainContract.fetchItems();
 
     const data = await Promise.all(
       items.map(async (i) => {
@@ -53,23 +53,20 @@ export default function Dashboard() {
 
         let state = 3;
         switch (i.itemState) {
-          case 3:
-            state = "for sale";
+          case 1:
+            state = "On Farmer Sale";
             break;
-          case 4:
-            state = "sold";
+          case 2:
+            state = "On Distro Sale";
             break;
           case 5:
-            state = "shipped";
-            break;
-          case 6:
-            state = "recieved";
+            state = "On Retail Sale";
             break;
           case 7:
-            state = "purchased";
+            state = "With Consumer";
             break;
           default:
-            state = "harvested";
+            state = "NaN";
         }
 
         let uData = {
@@ -128,7 +125,8 @@ export default function Dashboard() {
     const { upc, newPrice } = buyInput;
 
     try {
-      supplyChainContract.buyAsDist(upc, newPrice);
+      const currentPrice = await supplyChainContract.fetchCurrentPrice(upc);
+      supplyChainContract.buyAsDist(upc, newPrice, { value: currentPrice });
     } catch (error) {
       console.log(error);
     }
@@ -265,7 +263,13 @@ export default function Dashboard() {
                                         <button
                                           className='bg-emerald-500 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150'
                                           type='button'
-                                          onClick={() => changeOwner(buyInput)}>
+                                          onClick={() => {
+                                            try {
+                                              changeOwner(buyInput);
+                                            } catch (error) {
+                                              console.log(error);
+                                            }
+                                          }}>
                                           buy product
                                         </button>
                                       </a>

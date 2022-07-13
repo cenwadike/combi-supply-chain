@@ -124,5 +124,15 @@ describe("SupplyChain", async function () {
     console.log("consumer assotiated items:");
     console.log(consumerItems);
     console.log("-------------------------------");
+
+    let itemHashes;
+    try {
+      itemHashes = await supplyChain.fetchItemHashes(1);
+    } catch (error) {
+      console.log(error);
+    }
+    console.log("Hashes:");
+    console.log(itemHashes);
+    console.log("-------------------------------");
   });
 });
