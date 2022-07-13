@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: UNLICENCED
 
 pragma solidity ^0.8.6;
-// pragma experimental ABIEncoderV2;
 
 import "../accesscontrol/FarmerRole.sol";
 import "../accesscontrol/DistributorRole.sol";
 import "../accesscontrol/RetailerRole.sol";
 import "../accesscontrol/ConsumerRole.sol";
 import "../core/Ownable.sol";
+
+import "@openzeppelin/contracts/utils/Counters.sol";
 
 contract SupplyChain is
     FarmerRole,
@@ -16,69 +17,63 @@ contract SupplyChain is
     ConsumerRole
 {
     ////////////////////////////////DATA
-    address public owner;
+    address payable public owner;
 
-    uint256 public upc = 0;
-    uint256 public sku = 0;
-
-    enum State {
-        Harvested,
-        Processed,
-        Packaged,
-        ForSale,
-        SoldToDist,
-        SoldToRetail,
-        SoldToConsumer,
-        Shipped,
-        Received,
-        Purchased
-    }
-
-    State public constant DEFAULT_STATE = State.Harvested;
+    using Counters for Counters.Counter;
+    Counters.Counter public upc;
+    Counters.Counter public sku;
 
     struct Item {
         uint256 sku; // Stock Keeping Unit (SKU)
         uint256 upc; // Universal Product Code (UPC)
-        address ownerID; // address of the current owner
-        address originFarmerID; // address of the Farmer
+        uint256 productID; // Product ID
+        uint256 productPrice; // Product Price
+        string productMetadata; // Product Notes
+        address payable ownerID; // address of the current owner
+        address payable originFarmerID; // address of the Farmer
+        address payable distributorID; // address of the Distributor
+        address payable retailerID; // address of the Retailer
+        address payable consumerID; // address of the Consumer
         string originFarmName; // Farmer Name
         string originFarmMetadata; // Farmer Information
         string originFarmLatitude; // Farm Latitude
         string originFarmLongitude; // Farm Longitude
-        uint256 productID; // Product ID
-        string productMetadata; // Product Notes
-        uint256 productPrice; // Product Price
         State itemState; // Product State
-        address distributorID; // address of the Distributor
-        address retailerID; // address of the Retailer
-        address consumerID; // address of the Consumer
     }
     mapping(uint256 => Item) private items;
 
     struct TraceHash {
-        bytes32 harvestedHash;
-        bytes32 processedHash;
-        bytes32 packagedHash;
-        bytes32 sellToDistHash;
-        bytes32 buyAsDistHash;
-        bytes32 sellToRetailHash;
-        bytes32 buyAsRetailHash;
-        bytes32 sellToConsumerHash;
-        bytes32 buyAsConsumerHash;
+        bytes32 harvestedHash; // hash of product harvest
+        bytes32 packagedHash; // hash of product being packaged
+        bytes32 sellToDistHash; // hash of product being placed on sale to distributor
+        bytes32 buyAsDistHash; // hash of product being bought by distributor
+        bytes32 sellToRetailHash; // hash of product being placed on sale to retailer
+        bytes32 buyAsRetailHash; // hash of product being bought by retailer
+        bytes32 sellToConsumerHash; // hash of product being placed on sale to consumer
+        bytes32 buyAsConsumerHash; // hash of product being bought by consumer
     }
     mapping(uint256 => TraceHash) private traceHashes;
 
+    enum State {
+        Harvested,
+        ForSale,
+        SoldToDist,
+        SoldToRetail,
+        ShippedToRetail,
+        ReceivedByRetail,
+        SoldToConsumer,
+        ReceivedByConsumer
+    }
+
     ////////////////////////////////EVENTS
     event Harvested(uint256 upc);
-    event Processed(uint256 upc);
-    event Packaged(uint256 upc);
     event ForSale(uint256 upc);
-    event SoldToDist(uint256 upc);
+    event SoldToDist(uint256 upc, uint amount);
     event SoldToRetail(uint256 upc);
+    event ShippedToRetail(uint256 upc);
+    event ReceivedByRetail(uint256 upc);
     event SoldToConsumer(uint256 upc);
-    event Shipped(uint256 upc);
-    event Received(uint256 upc);
-    event Purchased(uint256 upc);
+    event ReceivedByCustomer(uint256 upc);
 
     ////////////////////////////////MODIFIERS
     modifier onlyOwner() {
@@ -86,51 +81,10 @@ contract SupplyChain is
         _;
     }
 
-    modifier verifyCaller(address _address) {
-        require(msg.sender == _address, "INVALID: Not Verified");
-        _;
-    }
-
-    // modifier paidEnough(uint256 _price) {
-    //     require(msg.value >= _price, "INVALID: Insufficient Amount");
-    //     _;
-    // }
-
-    // modifier checkValue(uint256 _upc) {
-    //     _;
-    //     uint256 _price = items[_upc].productPrice;
-    //     uint256 amountToReturn = msg.value - _price;
-    //     msg.sender.transfer(amountToReturn);
-    // }
-
     modifier harvested(uint256 _upc) {
         require(
             items[_upc].itemState == State.Harvested,
             "INVALID: Item Not Harvested"
-        );
-        _;
-    }
-
-    modifier processed(uint256 _upc) {
-        require(
-            items[_upc].itemState == State.Processed,
-            "INVALID: Item Not Processed"
-        );
-        _;
-    }
-
-    modifier packaged(uint256 _upc) {
-        require(
-            items[_upc].itemState == State.Packaged,
-            "INVALID: Item Not Packaged"
-        );
-        _;
-    }
-
-    modifier shipped(uint256 _upc) {
-        require(
-            items[_upc].itemState == State.Shipped,
-            "INVALID: Item Not Shipped"
         );
         _;
     }
@@ -159,25 +113,25 @@ contract SupplyChain is
         _;
     }
 
-    modifier received(uint256 _upc) {
+    modifier soldToConsumer(uint256 _upc) {
         require(
-            items[_upc].itemState == State.Received,
-            "INVALID: Item Not Received"
+            items[_upc].itemState == State.SoldToConsumer,
+            "INVALID: Not Sold To Distributor"
         );
         _;
     }
 
-    modifier purchased(uint256 _upc) {
+    modifier receivedByRetail(uint256 _upc) {
         require(
-            items[_upc].itemState == State.Purchased,
-            "INVALID: Item Not Purchased"
+            items[_upc].itemState == State.ReceivedByRetail,
+            "INVALID: Item Not Received"
         );
         _;
     }
 
     ////////////////////////////////BODY
     constructor() {
-        owner = msg.sender;
+        owner = payable(msg.sender);
     }
 
     //////////////////////////////////////////farmer's call
@@ -189,27 +143,31 @@ contract SupplyChain is
         string memory _productMetadata,
         uint256 _productPrice
     ) public {
-        uint256 _productID = uint(keccak256(abi.encode(upc + sku)));
-        items[upc] = Item(
-            sku,
-            upc,
-            msg.sender,
-            msg.sender,
+        upc.increment();
+        sku.increment();
+        uint256 _productID = uint(
+            keccak256(abi.encode(upc.current(), sku.current()))
+        );
+        items[upc.current()] = Item(
+            sku.current(),
+            upc.current(),
+            _productID,
+            _productPrice,
+            _productMetadata,
+            payable(msg.sender),
+            payable(msg.sender),
+            payable(address(0)),
+            payable(address(0)),
+            payable(address(0)),
             _originFarmName,
             _originFarmMetadata,
             _originFarmLatitude,
             _originFarmLongitude,
-            _productID,
-            _productMetadata,
-            _productPrice,
-            DEFAULT_STATE,
-            address(0),
-            address(0),
-            address(0)
+            State.Harvested
         );
-        traceHashes[upc] = TraceHash(
+
+        traceHashes[upc.current()] = TraceHash(
             blockhash(block.number),
-            bytes32(0),
             bytes32(0),
             bytes32(0),
             bytes32(0),
@@ -219,48 +177,34 @@ contract SupplyChain is
             bytes32(0)
         );
 
-        processItem(upc);
+        sellToDist(upc.current());
 
         if (!isFarmer(msg.sender)) {
             addFarmer(msg.sender);
         }
 
-        emit Harvested(upc);
+        emit Harvested(upc.current());
     }
 
-    function processItem(uint256 _upc) private harvested(_upc) {
-        items[_upc].itemState = State.Processed;
-        traceHashes[_upc].packagedHash = blockhash(block.number);
-        packagedItem(_upc);
-        emit Processed(_upc);
-    }
-
-    function packagedItem(uint256 _upc) private processed(_upc) {
-        items[_upc].itemState = State.Packaged;
-        traceHashes[_upc].packagedHash = blockhash(block.number);
-        sellToDist(_upc);
-        emit Packaged(_upc);
-    }
-
-    function sellToDist(uint256 _upc) private packaged(_upc) {
+    function sellToDist(uint256 _upc) private {
         items[_upc].itemState = State.ForSale;
         traceHashes[_upc].sellToDistHash = blockhash(block.number);
-
-        sku += 1;
-        upc += 1;
         emit ForSale(_upc);
     }
 
     //////////////////////////////////////////distributor's call
     function buyAsDist(uint256 _upc, uint256 _newPrice) public payable {
-        uint256 farmerPrice = items[_upc].productPrice;
-        address farmer = items[_upc].originFarmerID;
+        require(
+            msg.sender != items[_upc].originFarmerID,
+            "DistributorID cannot be farmerID"
+        );
+        require(
+            msg.value == items[_upc].productPrice,
+            "Insufficient Amount transfered"
+        );
 
-        require(msg.sender != farmer, "DistributorID cannot be farmerID");
-        require(msg.value == farmerPrice, "Insufficient Amount transfered");
-
-        items[_upc].ownerID = msg.sender;
-        items[_upc].distributorID = msg.sender;
+        items[_upc].ownerID = payable(msg.sender);
+        items[_upc].distributorID = payable(msg.sender);
         items[_upc].itemState = State.SoldToDist;
         items[_upc].productPrice = _newPrice;
 
@@ -270,8 +214,8 @@ contract SupplyChain is
             addDistributor(msg.sender);
         }
 
-        payable(farmer).transfer(farmerPrice);
-        emit SoldToDist(_upc);
+        items[_upc].originFarmerID.transfer(msg.value);
+        emit SoldToDist(_upc, items[_upc].productPrice);
     }
 
     //////////////////////////////////////////retailer's call
@@ -280,18 +224,16 @@ contract SupplyChain is
         payable
         soldToDist(_upc)
     {
-        uint256 distributorPrice = items[_upc].productPrice;
-
         require(
             msg.sender != items[_upc].originFarmerID,
             "RetailerID cannot be DistroID"
         );
         require(
-            msg.value == distributorPrice,
+            msg.value == items[_upc].productPrice,
             "Insufficient Amount transfered"
         );
 
-        items[_upc].retailerID = msg.sender;
+        items[_upc].retailerID = payable(msg.sender);
 
         traceHashes[_upc].buyAsRetailHash = blockhash(block.number);
 
@@ -316,29 +258,36 @@ contract SupplyChain is
         shipItem(_upc);
     }
 
-    function shipItem(uint256 _upc)
-        private
-        soldToRetailer(_upc)
-        verifyCaller(items[_upc].originFarmerID)
-    {
+    function shipItem(uint256 _upc) private soldToRetailer(_upc) {
         items[_upc].itemState = State.ForSale;
         items[_upc].ownerID = items[_upc].retailerID;
 
-        emit Shipped(_upc);
+        emit ShippedToRetail(_upc);
     }
 
     function receiveAsRetail(uint256 _upc) private forSale(_upc) {
-        addRetailer(msg.sender);
-        items[_upc].itemState = State.Received;
+        if (!isRetailer(msg.sender)) {
+            addRetailer(msg.sender);
+        }
+        items[_upc].itemState = State.ReceivedByRetail;
 
         // sellToConsumer(_upc);
-        emit Received(_upc);
+        emit ReceivedByRetail(_upc);
     }
 
     //////////////////////////////////////////consumer's call
-    function buyAsConsumer(uint256 _upc) public payable received(_upc) {
+    function buyAsConsumer(uint256 _upc) public payable receivedByRetail(_upc) {
+        require(
+            msg.sender != items[_upc].originFarmerID,
+            "ConsumerID cannot be RetailerID"
+        );
+        require(
+            msg.value == items[_upc].productPrice,
+            "Insufficient Amount transfered"
+        );
+        items[_upc].consumerID = payable(msg.sender);
+        items[_upc].itemState = State.ForSale;
         traceHashes[_upc].buyAsConsumerHash = blockhash(block.number);
-        items[_upc].consumerID = msg.sender;
 
         sellToConsumer(_upc);
 
@@ -352,24 +301,18 @@ contract SupplyChain is
         emit SoldToConsumer(_upc);
     }
 
-    function sellToConsumer(uint256 _upc)
-        private
-        received(_upc)
-        verifyCaller(items[_upc].originFarmerID)
-    {
+    function sellToConsumer(uint256 _upc) private forSale(_upc) {
         items[_upc].itemState = State.SoldToConsumer;
         traceHashes[_upc].sellToConsumerHash = blockhash(block.number);
         items[_upc].ownerID = items[_upc].consumerID;
-        emit ForSale(_upc);
     }
 
-    function receiveAsConsumer(uint256 _upc) private forSale(_upc) {
-        addConsumer(msg.sender);
-        items[_upc].ownerID = msg.sender;
-        items[_upc].consumerID = msg.sender;
-        items[_upc].itemState = State.Received;
+    function receiveAsConsumer(uint256 _upc) private soldToConsumer(_upc) {
+        items[_upc].ownerID = payable(msg.sender);
+        items[_upc].consumerID = payable(msg.sender);
+        items[_upc].itemState = State.ReceivedByConsumer;
 
-        emit Received(_upc);
+        emit ReceivedByCustomer(_upc);
     }
 
     //////////////////////////////////////////QUERIES AND CALLS
@@ -385,7 +328,7 @@ contract SupplyChain is
     }
 
     function fetchMyItems() public view returns (Item[] memory) {
-        uint256 itemCount = sku;
+        uint256 itemCount = sku.current();
         uint256 currentIndex = 0;
 
         Item[] memory item = new Item[](itemCount);
@@ -401,7 +344,7 @@ contract SupplyChain is
     }
 
     function fetchFarmerItems() public view returns (Item[] memory) {
-        uint256 itemCount = sku;
+        uint256 itemCount = sku.current();
         uint256 currentIndex = 0;
 
         Item[] memory item = new Item[](itemCount);
@@ -417,7 +360,7 @@ contract SupplyChain is
     }
 
     function fetchDistributorItems() public view returns (Item[] memory) {
-        uint256 itemCount = sku;
+        uint256 itemCount = sku.current();
         uint256 currentIndex = 0;
 
         Item[] memory item = new Item[](itemCount);
@@ -436,7 +379,7 @@ contract SupplyChain is
     }
 
     function fetchRetailerItems() public view returns (Item[] memory) {
-        uint256 itemCount = sku;
+        uint256 itemCount = sku.current();
         uint256 currentIndex = 0;
 
         Item[] memory item = new Item[](itemCount);
@@ -455,7 +398,7 @@ contract SupplyChain is
     }
 
     function fetchConsumerItems() public view returns (Item[] memory) {
-        uint256 itemCount = sku;
+        uint256 itemCount = sku.current();
         uint256 currentIndex = 0;
 
         Item[] memory item = new Item[](itemCount);
@@ -473,13 +416,13 @@ contract SupplyChain is
         return item;
     }
 
-    function fetchItemTraceHashes(uint256 _upc)
-        public
-        view
-        returns (TraceHash[] memory)
-    {
-        traceHashes[_upc];
-    }
+    // function fetchItemTraceHashes(uint256 _upc)
+    //     public
+    //     view
+    //     returns (TraceHash[]  memory trace)
+    // {
+    //     trace = traceHashes[_upc];
+    // }
 
     function fetchCurrentState(uint256 _upc)
         public

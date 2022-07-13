@@ -92,7 +92,7 @@ export default function Dashboard() {
     console.log("users", data);
   }
 
-  ////////////////////////////////add item to chain
+  //////////////////////////////////add item to chain
   async function addItemToChain() {
     const { farmerName, farmName, farmLatitude, farmLongitude, productMeta, price } = formInput;
     if (!farmerName || !farmName || !farmLatitude || !farmLongitude || !productMeta || !price)
