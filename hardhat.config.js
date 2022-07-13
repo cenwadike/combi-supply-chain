@@ -23,11 +23,12 @@ module.exports = {
       chainId: 31337,
     },
 
-    // AuroraTestnet: {
-    //   url: "https://testnet.aurora.dev",
-    //   chainId: 1313161555,
-    //   accounts: [privateKey]
-    // },
+    AuroraTestnet: {
+      url: "https://testnet.aurora.dev",
+      chainId: 1313161555,
+      accounts: [privateKey],
+    },
+
     Mumbai: {
       // Infura
       // url: `https://polygon-mumbai.infura.io/v3/${infuraId}`

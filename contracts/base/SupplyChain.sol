@@ -316,23 +316,23 @@ contract SupplyChain is
     }
 
     //////////////////////////////////////////QUERIES AND CALLS
-    function buy(uint256 _upc, uint256 _newPrice) external payable {
-        if (items[_upc].distributorID == address(0)) {
-            buyAsDist(_upc, _newPrice);
-        }
-        if (items[_upc].retailerID == address(0)) {
-            buyAsRetail(_upc, _newPrice);
-        } else {
-            buyAsConsumer(_upc);
-        }
-    }
+    // function buy(uint256 _upc, uint256 _newPrice) external payable {
+    //     if (items[_upc].distributorID == address(0)) {
+    //         buyAsDist(_upc, _newPrice);
+    //     }
+    //     if (items[_upc].retailerID == address(0)) {
+    //         buyAsRetail(_upc, _newPrice);
+    //     } else {
+    //         buyAsConsumer(_upc);
+    //     }
+    // }
 
     function fetchMyItems() public view returns (Item[] memory) {
         uint256 itemCount = sku.current();
-        uint256 currentIndex = 0;
+        uint256 currentIndex = 1;
 
         Item[] memory item = new Item[](itemCount);
-        for (uint256 i = 0; i <= itemCount; i++) {
+        for (uint256 i = 1; i <= itemCount; i++) {
             if (items[i].ownerID == msg.sender) {
                 uint256 currentId = i + 1;
                 Item storage currentproduct = items[currentId];
@@ -344,76 +344,95 @@ contract SupplyChain is
     }
 
     function fetchFarmerItems() public view returns (Item[] memory) {
-        uint256 itemCount = sku.current();
-        uint256 currentIndex = 0;
+        uint256 totalItemCount = sku.current();
+        uint itemCount = 0;
+        uint currentIndex = 0;
 
-        Item[] memory item = new Item[](itemCount);
+        for (uint i = 0; i < totalItemCount; i++) {
+            if (items[i + 1].originFarmerID == msg.sender) {
+                itemCount += 1;
+            }
+        }
+
+        Item[] memory products = new Item[](itemCount);
         for (uint256 i = 0; i <= itemCount; i++) {
-            if (items[i].originFarmerID == msg.sender) {
+            if (items[i + 1].originFarmerID == msg.sender) {
                 uint256 currentId = i + 1;
                 Item storage currentproduct = items[currentId];
-                item[currentIndex] = currentproduct;
+                products[currentIndex] = currentproduct;
                 currentIndex += 1;
             }
         }
-        return item;
+        return products;
     }
 
-    function fetchDistributorItems() public view returns (Item[] memory) {
-        uint256 itemCount = sku.current();
-        uint256 currentIndex = 0;
+    function fetchDistroItems() public view returns (Item[] memory) {
+        uint256 totalItemCount = sku.current();
+        uint itemCount = 0;
+        uint currentIndex = 0;
 
-        Item[] memory item = new Item[](itemCount);
+        for (uint i = 0; i < totalItemCount; i++) {
+            if (items[i + 1].distributorID == msg.sender) {
+                itemCount += 1;
+            }
+        }
+
+        Item[] memory products = new Item[](itemCount);
         for (uint256 i = 0; i <= itemCount; i++) {
-            if (
-                items[i].ownerID == msg.sender &&
-                items[i].distributorID == msg.sender
-            ) {
+            if (items[i + 1].distributorID == msg.sender) {
                 uint256 currentId = i + 1;
                 Item storage currentproduct = items[currentId];
-                item[currentIndex] = currentproduct;
+                products[currentIndex] = currentproduct;
                 currentIndex += 1;
             }
         }
-        return item;
+        return products;
     }
 
     function fetchRetailerItems() public view returns (Item[] memory) {
-        uint256 itemCount = sku.current();
-        uint256 currentIndex = 0;
+        uint256 totalItemCount = sku.current();
+        uint itemCount = 0;
+        uint currentIndex = 0;
 
-        Item[] memory item = new Item[](itemCount);
+        for (uint i = 0; i < totalItemCount; i++) {
+            if (items[i + 1].retailerID == msg.sender) {
+                itemCount += 1;
+            }
+        }
+
+        Item[] memory products = new Item[](itemCount);
         for (uint256 i = 0; i <= itemCount; i++) {
-            if (
-                items[i].ownerID == msg.sender &&
-                items[i].retailerID == msg.sender
-            ) {
+            if (items[i + 1].retailerID == msg.sender) {
                 uint256 currentId = i + 1;
                 Item storage currentproduct = items[currentId];
-                item[currentIndex] = currentproduct;
+                products[currentIndex] = currentproduct;
                 currentIndex += 1;
             }
         }
-        return item;
+        return products;
     }
 
     function fetchConsumerItems() public view returns (Item[] memory) {
-        uint256 itemCount = sku.current();
-        uint256 currentIndex = 0;
+        uint256 totalItemCount = sku.current();
+        uint itemCount = 0;
+        uint currentIndex = 0;
 
-        Item[] memory item = new Item[](itemCount);
+        for (uint i = 0; i < totalItemCount; i++) {
+            if (items[i + 1].consumerID == msg.sender) {
+                itemCount += 1;
+            }
+        }
+
+        Item[] memory products = new Item[](itemCount);
         for (uint256 i = 0; i <= itemCount; i++) {
-            if (
-                items[i].ownerID == msg.sender &&
-                items[i].consumerID == msg.sender
-            ) {
+            if (items[i + 1].consumerID == msg.sender) {
                 uint256 currentId = i + 1;
                 Item storage currentproduct = items[currentId];
-                item[currentIndex] = currentproduct;
+                products[currentIndex] = currentproduct;
                 currentIndex += 1;
             }
         }
-        return item;
+        return products;
     }
 
     // function fetchItemTraceHashes(uint256 _upc)

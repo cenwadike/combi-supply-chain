@@ -82,5 +82,47 @@ describe("SupplyChain", async function () {
     // expect(buyAsRetailState == 7);
     console.log("Product state: ", buyAsConsumerState);
     console.log("Product bought by customer");
+    console.log("-------------------------------");
+
+    ////////////////////////////////query blockchain
+    let farmerItems;
+    try {
+      farmerItems = await supplyChain.connect(farmer).fetchFarmerItems();
+    } catch (error) {
+      console.log(error);
+    }
+    console.log("farmer assotiated items:");
+    console.log(farmerItems);
+    console.log("-------------------------------");
+
+    let distributorItems;
+    try {
+      distributorItems = await supplyChain.connect(distributor).fetchDistroItems();
+    } catch (error) {
+      console.log(error);
+    }
+    console.log("distributor assotiated items:");
+    console.log(distributorItems);
+    console.log("-------------------------------");
+
+    let retailerItems;
+    try {
+      retailerItems = await supplyChain.connect(retailer).fetchRetailerItems();
+    } catch (error) {
+      console.log(error);
+    }
+    console.log("retailer assotiated items:");
+    console.log(retailerItems);
+    console.log("-------------------------------");
+
+    let consumerItems;
+    try {
+      consumerItems = await supplyChain.connect(consumer).fetchConsumerItems();
+    } catch (error) {
+      console.log(error);
+    }
+    console.log("consumer assotiated items:");
+    console.log(consumerItems);
+    console.log("-------------------------------");
   });
 });
