@@ -50,23 +50,20 @@ export default function Dashboard() {
 
         let state = 3;
         switch (i.itemState) {
-          case 3:
-            state = "for sale";
+          case 1:
+            state = "On Farmer Sale";
             break;
-          case 4:
-            state = "sold";
+          case 2:
+            state = "On Whole Sale";
             break;
           case 5:
-            state = "shipped";
-            break;
-          case 6:
-            state = "recieved";
+            state = "On Retail Sale";
             break;
           case 7:
-            state = "purchased";
+            state = "With Consumer";
             break;
           default:
-            state = "harvested";
+            state = "NaN";
         }
 
         let uData = {
@@ -95,23 +92,20 @@ export default function Dashboard() {
 
         let state = 3;
         switch (i.itemState) {
-          case 3:
-            state = "for sale";
+          case 1:
+            state = "On Farmer Sale";
             break;
-          case 4:
-            state = "sold";
+          case 2:
+            state = "On Whole Sale";
             break;
           case 5:
-            state = "shipped";
-            break;
-          case 6:
-            state = "recieved";
+            state = "On Retail Sale";
             break;
           case 7:
-            state = "purchased";
+            state = "With Consumer";
             break;
           default:
-            state = "harvested";
+            state = "NaN";
         }
 
         let uData = {
@@ -151,7 +145,7 @@ export default function Dashboard() {
     }
 
     setModal(false);
-    router.push("/dashboard");
+    router.push(pathname);
   }
 
   //////////////////////////////////display products

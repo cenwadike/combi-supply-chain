@@ -44,6 +44,7 @@ describe("SupplyChain", async function () {
     console.log("Product harvested and on sale");
     console.log("");
 
+    /*********************inter step test********** */
     try {
       await supplyChain
         .connect(farmer)
@@ -58,7 +59,13 @@ describe("SupplyChain", async function () {
     } catch (error) {
       console.log(error);
     }
-    const State = await supplyChain.fetchCurrentState(2);
+    try {
+      await supplyChain
+        .connect(distributor)
+        .buyAsDist(2, distributorPrice, { value: productPrice });
+    } catch (error) {
+      console.log(error);
+    }
 
     ////////////////////////////////distributor action
     try {
