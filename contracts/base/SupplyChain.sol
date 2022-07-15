@@ -68,7 +68,7 @@ contract SupplyChain is
     ////////////////////////////////EVENTS
     event Harvested(uint256 upc);
     event ForSale(uint256 upc);
-    event SoldToDist(uint256 upc, uint amount);
+    event SoldToDist(uint256 upc, uint256 amount);
     event SoldToRetail(uint256 upc);
     event ShippedToRetail(uint256 upc);
     event ReceivedByRetail(uint256 upc);
@@ -327,28 +327,13 @@ contract SupplyChain is
     //     }
     // }
 
-    function fetchMyItems() public view returns (Item[] memory) {
-        uint256 itemCount = sku.current();
-        uint256 currentIndex = 1;
-
-        Item[] memory item = new Item[](itemCount);
-        for (uint256 i = 1; i <= itemCount; i++) {
-            if (items[i].ownerID == msg.sender) {
-                uint256 currentId = i + 1;
-                Item storage currentproduct = items[currentId];
-                item[currentIndex] = currentproduct;
-                currentIndex += 1;
-            }
-        }
-        return item;
-    }
-
+    /****** farmer query ********************************************/
     function fetchFarmerItems() public view returns (Item[] memory) {
         uint256 totalItemCount = sku.current();
-        uint itemCount = 0;
-        uint currentIndex = 0;
+        uint256 itemCount = 0;
+        uint256 currentIndex = 0;
 
-        for (uint i = 0; i < totalItemCount; i++) {
+        for (uint256 i = 0; i < totalItemCount; i++) {
             if (items[i + 1].originFarmerID == msg.sender) {
                 itemCount += 1;
             }
@@ -356,7 +341,10 @@ contract SupplyChain is
 
         Item[] memory products = new Item[](itemCount);
         for (uint256 i = 0; i <= itemCount; i++) {
-            if (items[i + 1].originFarmerID == msg.sender) {
+            if (
+                items[i + 1].originFarmerID == msg.sender ||
+                items[i + 1].ownerID == msg.sender
+            ) {
                 uint256 currentId = i + 1;
                 Item storage currentproduct = items[currentId];
                 products[currentIndex] = currentproduct;
@@ -366,12 +354,13 @@ contract SupplyChain is
         return products;
     }
 
+    /******** distributor query ************************************/
     function fetchDistroItems() public view returns (Item[] memory) {
         uint256 totalItemCount = sku.current();
-        uint itemCount = 0;
-        uint currentIndex = 0;
+        uint256 itemCount = 0;
+        uint256 currentIndex = 0;
 
-        for (uint i = 0; i < totalItemCount; i++) {
+        for (uint256 i = 0; i < totalItemCount; i++) {
             if (items[i + 1].distributorID == msg.sender) {
                 itemCount += 1;
             }
@@ -379,7 +368,10 @@ contract SupplyChain is
 
         Item[] memory products = new Item[](itemCount);
         for (uint256 i = 0; i <= itemCount; i++) {
-            if (items[i + 1].distributorID == msg.sender) {
+            if (
+                items[i + 1].distributorID == msg.sender ||
+                items[i + 1].ownerID == msg.sender
+            ) {
                 uint256 currentId = i + 1;
                 Item storage currentproduct = items[currentId];
                 products[currentIndex] = currentproduct;
@@ -389,12 +381,46 @@ contract SupplyChain is
         return products;
     }
 
+    function fetchAvailableItemsForDistro()
+        public
+        view
+        returns (Item[] memory)
+    {
+        uint256 totalItemCount = sku.current();
+        uint256 itemCount = 0;
+        uint256 currentIndex = 0;
+
+        for (uint256 i = 0; i < totalItemCount; i++) {
+            if (
+                items[i + 1].originFarmerID != address(0) &&
+                items[i + 1].distributorID == address(0)
+            ) {
+                itemCount += 1;
+            }
+        }
+
+        Item[] memory products = new Item[](itemCount);
+        for (uint256 i = 0; i <= itemCount; i++) {
+            if (
+                items[i + 1].originFarmerID != address(0) &&
+                items[i + 1].distributorID == address(0)
+            ) {
+                uint256 currentId = i + 1;
+                Item storage currentproduct = items[currentId];
+                products[currentIndex] = currentproduct;
+                currentIndex += 1;
+            }
+        }
+        return products;
+    }
+
+    /******** retailer query ****************************************/
     function fetchRetailerItems() public view returns (Item[] memory) {
         uint256 totalItemCount = sku.current();
-        uint itemCount = 0;
-        uint currentIndex = 0;
+        uint256 itemCount = 0;
+        uint256 currentIndex = 0;
 
-        for (uint i = 0; i < totalItemCount; i++) {
+        for (uint256 i = 0; i < totalItemCount; i++) {
             if (items[i + 1].retailerID == msg.sender) {
                 itemCount += 1;
             }
@@ -402,7 +428,10 @@ contract SupplyChain is
 
         Item[] memory products = new Item[](itemCount);
         for (uint256 i = 0; i <= itemCount; i++) {
-            if (items[i + 1].retailerID == msg.sender) {
+            if (
+                items[i + 1].retailerID == msg.sender ||
+                items[i + 1].ownerID == msg.sender
+            ) {
                 uint256 currentId = i + 1;
                 Item storage currentproduct = items[currentId];
                 products[currentIndex] = currentproduct;
@@ -412,12 +441,46 @@ contract SupplyChain is
         return products;
     }
 
+    function fetchAvailableItemsForRetailer()
+        public
+        view
+        returns (Item[] memory)
+    {
+        uint256 totalItemCount = sku.current();
+        uint256 itemCount = 0;
+        uint256 currentIndex = 0;
+
+        for (uint256 i = 0; i < totalItemCount; i++) {
+            if (
+                items[i + 1].distributorID != address(0) &&
+                items[i + 1].retailerID == address(0)
+            ) {
+                itemCount += 1;
+            }
+        }
+
+        Item[] memory products = new Item[](itemCount);
+        for (uint256 i = 0; i <= itemCount; i++) {
+            if (
+                items[i + 1].distributorID != address(0) &&
+                items[i + 1].retailerID == address(0)
+            ) {
+                uint256 currentId = i + 1;
+                Item storage currentproduct = items[currentId];
+                products[currentIndex] = currentproduct;
+                currentIndex += 1;
+            }
+        }
+        return products;
+    }
+
+    /******** consumer query ****************************************/
     function fetchConsumerItems() public view returns (Item[] memory) {
         uint256 totalItemCount = sku.current();
-        uint itemCount = 0;
-        uint currentIndex = 0;
+        uint256 itemCount = 0;
+        uint256 currentIndex = 0;
 
-        for (uint i = 0; i < totalItemCount; i++) {
+        for (uint256 i = 0; i < totalItemCount; i++) {
             if (items[i + 1].consumerID == msg.sender) {
                 itemCount += 1;
             }
@@ -425,7 +488,10 @@ contract SupplyChain is
 
         Item[] memory products = new Item[](itemCount);
         for (uint256 i = 0; i <= itemCount; i++) {
-            if (items[i + 1].consumerID == msg.sender) {
+            if (
+                items[i + 1].consumerID == msg.sender ||
+                items[i + 1].ownerID == msg.sender
+            ) {
                 uint256 currentId = i + 1;
                 Item storage currentproduct = items[currentId];
                 products[currentIndex] = currentproduct;
@@ -435,9 +501,43 @@ contract SupplyChain is
         return products;
     }
 
+    function fetchAvailableItemsForConsumer()
+        public
+        view
+        returns (Item[] memory)
+    {
+        uint256 totalItemCount = sku.current();
+        uint256 itemCount = 0;
+        uint256 currentIndex = 0;
+
+        for (uint256 i = 0; i < totalItemCount; i++) {
+            if (
+                items[i + 1].retailerID != address(0) &&
+                items[i + 1].consumerID == address(0)
+            ) {
+                itemCount += 1;
+            }
+        }
+
+        Item[] memory products = new Item[](itemCount);
+        for (uint256 i = 0; i <= itemCount; i++) {
+            if (
+                items[i + 1].retailerID != address(0) &&
+                items[i + 1].consumerID == address(0)
+            ) {
+                uint256 currentId = i + 1;
+                Item storage currentproduct = items[currentId];
+                products[currentIndex] = currentproduct;
+                currentIndex += 1;
+            }
+        }
+        return products;
+    }
+
+    /******** general supplychain query ****************************/
     function fetchItems() public view returns (Item[] memory) {
         uint256 itemCount = sku.current();
-        uint currentIndex = 0;
+        uint256 currentIndex = 0;
 
         Item[] memory products = new Item[](itemCount);
         for (uint256 i = 0; i <= itemCount; i++) {
@@ -451,13 +551,13 @@ contract SupplyChain is
         return products;
     }
 
-    function fetchItemHashes(uint _upc)
+    function fetchItemHashes(uint256 _upc)
         public
         view
         returns (TraceHash[] memory)
     {
         uint256 itemCount = sku.current();
-        uint currentIndex = 0;
+        uint256 currentIndex = 0;
 
         TraceHash[] memory productHash = new TraceHash[](itemCount);
         for (uint256 i = 0; i <= itemCount; i++) {

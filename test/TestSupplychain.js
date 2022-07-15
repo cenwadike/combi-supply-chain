@@ -19,7 +19,8 @@ describe("SupplyChain", async function () {
     const distributorPrice = ethers.utils.parseUnits("2", "ether");
     const retailPrice = ethers.utils.parseUnits("3", "ether");
 
-    console.log("Simulating Supplychain parties");
+    console.log("-------------------------------");
+    console.log("SIMULATING SUPPLYCHAIN PARTIES");
     console.log("-------------------------------");
 
     ////////////////////////////////farmer action
@@ -37,12 +38,11 @@ describe("SupplyChain", async function () {
     } catch (error) {
       console.log(error);
     }
-
     const harvestedState = await supplyChain.fetchCurrentState(1);
     // expect(harvestedState == 1);
     console.log("Product state: ", harvestedState);
     console.log("Product harvested and on sale");
-    console.log("-------------------------------");
+    console.log("");
 
     ////////////////////////////////distributor action
     try {
@@ -56,7 +56,7 @@ describe("SupplyChain", async function () {
     // expect(buyAsDistState == 2);
     console.log("Product state: ", buyAsDistState);
     console.log("Product is sold to distributor and on sale to retailer");
-    console.log("-------------------------------");
+    console.log("");
 
     ////////////////////////////////retailer action
     try {
@@ -70,7 +70,7 @@ describe("SupplyChain", async function () {
     // expect(buyAsRetailState == 5);
     console.log("Product state: ", buyAsRetailState);
     console.log("Product is sold, shipped and received by retailer and on sale to consumer");
-    console.log("-------------------------------");
+    console.log("");
 
     ////////////////////////////////consumer action
     try {
@@ -82,9 +82,12 @@ describe("SupplyChain", async function () {
     // expect(buyAsRetailState == 7);
     console.log("Product state: ", buyAsConsumerState);
     console.log("Product bought by customer");
-    console.log("-------------------------------");
+    console.log("");
 
     ////////////////////////////////query blockchain
+    console.log("-------------------------------");
+    console.log("SIMULATING BLOCKCHAIN QUERY");
+    console.log("---------------------------------");
     let farmerItems;
     try {
       farmerItems = await supplyChain.connect(farmer).fetchFarmerItems();
@@ -93,9 +96,10 @@ describe("SupplyChain", async function () {
     }
     console.log("farmer assotiated items:");
     console.log(farmerItems);
-    console.log("-------------------------------");
+    console.log("");
 
     let distributorItems;
+    let itemsAvailableForDistro;
     try {
       distributorItems = await supplyChain.connect(distributor).fetchDistroItems();
     } catch (error) {
@@ -103,9 +107,20 @@ describe("SupplyChain", async function () {
     }
     console.log("distributor assotiated items:");
     console.log(distributorItems);
-    console.log("-------------------------------");
+    console.log("");
+    try {
+      itemsAvailableForDistro = await supplyChain
+        .connect(distributor)
+        .fetchAvailableItemsForDistro();
+    } catch (error) {
+      console.log(error);
+    }
+    console.log("Items available to distributors:");
+    console.log(itemsAvailableForDistro);
+    console.log("");
 
     let retailerItems;
+    let itemsAvailableForRetail;
     try {
       retailerItems = await supplyChain.connect(retailer).fetchRetailerItems();
     } catch (error) {
@@ -113,9 +128,20 @@ describe("SupplyChain", async function () {
     }
     console.log("retailer assotiated items:");
     console.log(retailerItems);
-    console.log("-------------------------------");
+    console.log("");
+    try {
+      itemsAvailableForRetail = await supplyChain
+        .connect(retailer)
+        .fetchAvailableItemsForRetailer();
+    } catch (error) {
+      console.log(error);
+    }
+    console.log("Items available to retailers:");
+    console.log(itemsAvailableForRetail);
+    console.log("");
 
     let consumerItems;
+    let itemsAvailableForConsumers;
     try {
       consumerItems = await supplyChain.connect(consumer).fetchConsumerItems();
     } catch (error) {
@@ -123,8 +149,21 @@ describe("SupplyChain", async function () {
     }
     console.log("consumer assotiated items:");
     console.log(consumerItems);
-    console.log("-------------------------------");
+    console.log("");
+    try {
+      itemsAvailableForConsumers = await supplyChain
+        .connect(consumer)
+        .fetchAvailableItemsForConsumer();
+    } catch (error) {
+      console.log(error);
+    }
+    console.log("Items available to consumers");
+    console.log(itemsAvailableForConsumers);
+    console.log("");
 
+    console.log("-------------------------------");
+    console.log("GETTING TRANSACTIOIN HASHES");
+    console.log("-------------------------------");
     let itemHashes;
     try {
       itemHashes = await supplyChain.fetchItemHashes(1);
@@ -133,6 +172,6 @@ describe("SupplyChain", async function () {
     }
     console.log("Hashes:");
     console.log(itemHashes);
-    console.log("-------------------------------");
+    console.log("");
   });
 });
