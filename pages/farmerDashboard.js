@@ -49,23 +49,20 @@ export default function Dashboard() {
 
         let state = 3;
         switch (i.itemState) {
-          case 3:
-            state = "for sale";
+          case 1:
+            state = "On Farmer Sale";
             break;
-          case 4:
-            state = "sold";
+          case 2:
+            state = "On Whole Sale";
             break;
           case 5:
-            state = "shipped";
-            break;
-          case 6:
-            state = "recieved";
+            state = "On Retail Sale";
             break;
           case 7:
-            state = "purchased";
+            state = "With Consumer";
             break;
           default:
-            state = "harvested";
+            state = "NaN";
         }
 
         let uData = {
@@ -76,6 +73,7 @@ export default function Dashboard() {
           farmerId: i.originFarmerID,
           price: price,
           state: state,
+          data: i.productMetadata,
         };
 
         return uData;
@@ -109,7 +107,7 @@ export default function Dashboard() {
     );
 
     setShowModal(false);
-    router.push("/dashboard");
+    router.push("/farmerDashboard");
   }
 
   //////////////////////////////////display products
@@ -120,11 +118,15 @@ export default function Dashboard() {
           <div className='p-4'>
             <h2 className='text-2xl font-bold uppercase py-2'>Products</h2>
             <div className='grid justify-items-stretch sm:grid-cols-2 gap-4 pt-4'>
-              {userData.map(({ farmer, farmerId, sku, upc, price, state }) => {
+              {userData.map(({ farmer, farmerId, data, sku, upc, price, state }) => {
                 return (
                   <div key={sku} className='border shadow rounded-xl overflow-hidden'>
                     <div className='p-4 flex justify-center bg-blue-800 border-t border-solid border-slate-200'>
                       <p className='text-xl font-small text-white'>FARMER - {farmer}</p>
+                    </div>
+
+                    <div className='p-4 flex justify-center bg-blue-800 border-t border-solid border-slate-200'>
+                      <p className='text-xl font-small text-white'>PRODUCT - {data}</p>
                     </div>
                     <div className='p-4 flex justify-center bg-blue-800 border-t border-solid border-slate-200'>
                       <p className='text-xl font-small text-white'>SKU - {sku}</p>
@@ -139,7 +141,7 @@ export default function Dashboard() {
                       <p className='text-xl font-small text-white'>STATE - {state}</p>
                     </div>
                     <div className='p-4 flex justify-center bg-blue-800 border-t border-solid border-slate-200'>
-                      <p className='text-xl font-small text-white'>FARMER_ID - {farmerId}</p>
+                      <p className='text-xl font-small text-white'>FARM_ID - {farmerId}</p>
                     </div>
                   </div>
                 );

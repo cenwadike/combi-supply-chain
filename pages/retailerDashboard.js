@@ -8,7 +8,7 @@ import { supplyChainAddress } from "../config";
 import SupplyChain from "../artifacts_/SupplyChain.json";
 
 // dashboard should display all of distributor products
-// allow distributor buy available products
+// allow retailer buy available products
 export default function Dashboard() {
   const [userItems, setUserItems] = useState([]);
   const [userAvailableItems, setAvailableItems] = useState([]);
