@@ -44,6 +44,22 @@ describe("SupplyChain", async function () {
     console.log("Product harvested and on sale");
     console.log("");
 
+    try {
+      await supplyChain
+        .connect(farmer)
+        .harvestItem(
+          originFarmerName,
+          originFarmMetadata,
+          originFarmLatitude,
+          originFarmLongitude,
+          productMetadata,
+          productPrice
+        );
+    } catch (error) {
+      console.log(error);
+    }
+    const State = await supplyChain.fetchCurrentState(2);
+
     ////////////////////////////////distributor action
     try {
       await supplyChain

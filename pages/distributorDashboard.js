@@ -38,7 +38,8 @@ export default function Dashboard() {
     let availaibleItems = [];
     try {
       myItems = await supplyChainContract.fetchDistroItems();
-      availaibleItems = await supplyChainContract.fetchAvailableItemsForRetailer();
+      availaibleItems = await supplyChainContract.fetchAvailableItemsForDistro();
+      console.log(availaibleItems);
     } catch (error) {}
 
     const myItemsData = await Promise.all(
@@ -130,6 +131,7 @@ export default function Dashboard() {
     );
 
     setAvailableItems(myAvailableItems);
+    console.log("available:", myAvailableItems);
   }
 
   //////////////////////////////////sell item to next buyer in supplychain
