@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 import { supplyChainAddress } from "../config";
 import SupplyChain from "../artifacts_/SupplyChain.json";
 
-// dashboard should display all of distributor products
+// dashboard should display all of consumer products
 // allow consumer buy available products
 export default function Dashboard() {
   const [userItems, setUserItems] = useState([]);
@@ -134,11 +134,11 @@ export default function Dashboard() {
     const provider = new ethers.providers.Web3Provider(connection);
     const signer = provider.getSigner();
     const supplyChainContract = new ethers.Contract(supplyChainAddress, SupplyChain.abi, signer);
-    const { upc, newPrice } = buyInput;
+    const { upc } = buyInput;
 
     try {
       const currentPrice = await supplyChainContract.fetchCurrentPrice(upc);
-      supplyChainContract.buyAsRetail(upc, newPrice, { value: currentPrice });
+      supplyChainContract.buyAsConsumer(upc, { value: currentPrice });
     } catch (error) {
       console.log(error);
     }
@@ -241,30 +241,6 @@ export default function Dashboard() {
                                   <div className='px-4 flex justify-center'>
                                     <form className='w-full max-w-sm'>
                                       <div className='md:flex md:items-center mb-6'>
-                                        <div className='md:w-2/3'>
-                                          <label
-                                            className='block text-white font-bold uppercase text-xl md:text-right mb-1 md:mb-0 pr-4'
-                                            htmlFor='inline-full-name'>
-                                            new price
-                                          </label>
-                                        </div>
-                                        <div className='md:w-3/5'>
-                                          <input
-                                            className='bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full text-gray-700 focus:outline-none focus:bg-white focus:border-blue-600'
-                                            id='new_price'
-                                            type='number'
-                                            placeholder='0.01'
-                                            onChange={(e) =>
-                                              updateBuyInput({
-                                                ...buyInput,
-                                                upc: { upc },
-                                                newPrice: ethers.utils.parseEther(
-                                                  e.target.value.toString()
-                                                ),
-                                              })
-                                            }
-                                          />
-                                        </div>
                                         <div className='md:w-2/3'>
                                           <label
                                             className='block text-white font-bold uppercase text-xl md:text-right mb-1 md:mb-0 pr-4'

@@ -71,6 +71,11 @@ describe("SupplyChain", async function () {
     } catch (error) {
       console.log(error);
     }
+    try {
+      await supplyChain.connect(retailer).buyAsConsumer(2, { value: retailPrice });
+    } catch (error) {
+      console.log(error);
+    }
 
     ////////////////////////////////distributor action
     try {
