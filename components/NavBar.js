@@ -75,7 +75,7 @@ export default function Navbar() {
   const accountChangeHandler = (newAccount) => {
     setUserAccount(newAccount);
     setConnectButtonText(newAccount);
-    getAccountBalance(newAccount.toString());
+    // getAccountBalance(newAccount.toString());
   };
 
   const chainChangedHandler = () => {

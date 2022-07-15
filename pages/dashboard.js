@@ -43,7 +43,10 @@ export default function Dashboard() {
     const provider = new ethers.providers.Web3Provider(connection);
     const signer = provider.getSigner();
     const supplyChainContract = new ethers.Contract(supplyChainAddress, SupplyChain.abi, signer);
-    const items = await supplyChainContract.fetchItems();
+    let items = [];
+    try {
+      items = await supplyChainContract.fetchItems();
+    } catch (error) {}
 
     const data = await Promise.all(
       items.map(async (i) => {
@@ -57,7 +60,7 @@ export default function Dashboard() {
             state = "On Farmer Sale";
             break;
           case 2:
-            state = "On Distro Sale";
+            state = "On Whole Sale";
             break;
           case 5:
             state = "On Retail Sale";
