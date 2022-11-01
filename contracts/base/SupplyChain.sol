@@ -214,7 +214,7 @@ contract SupplyChain is
             addDistributor(msg.sender);
         }
 
-        items[_upc].originFarmerID.transfer(msg.value);
+        items[_upc].ownerID.transfer(msg.value);
         emit SoldToDist(_upc, items[_upc].productPrice);
     }
 
@@ -237,8 +237,11 @@ contract SupplyChain is
 
         traceHashes[_upc].buyAsRetailHash = blockhash(block.number - 1);
 
-        payable(items[_upc].distributorID).transfer(items[_upc].productPrice);
+        items[_upc].ownerID.transfer(items[_upc].productPrice);
 
+        if (items[_upc].distributorID == address(0)) {
+            sellDirectToRetailer(_upc, _newPrice);
+        }
         sellToRetail(_upc, _newPrice);
 
         if (!isRetailer(msg.sender)) {
@@ -258,6 +261,15 @@ contract SupplyChain is
         shipItem(_upc);
     }
 
+    function sellDirectToRetailer(uint256 _upc, uint256 _newPrice) private {
+        items[_upc].itemState = State.SoldToRetail;
+        items[_upc].productPrice = _newPrice;
+        traceHashes[_upc].sellToDistHash = keccak256(
+            abi.encode("DIRECT_TO_RETAILER_SALE")
+        );
+        traceHashes[_upc].sellToRetailHash = blockhash(block.number - 1);
+    }
+
     function shipItem(uint256 _upc) private soldToRetailer(_upc) {
         items[_upc].itemState = State.ForSale;
         items[_upc].ownerID = items[_upc].retailerID;
@@ -266,12 +278,8 @@ contract SupplyChain is
     }
 
     function receiveAsRetail(uint256 _upc) private forSale(_upc) {
-        if (!isRetailer(msg.sender)) {
-            addRetailer(msg.sender);
-        }
         items[_upc].itemState = State.ReceivedByRetail;
 
-        // sellToConsumer(_upc);
         emit ReceivedByRetail(_upc);
     }
 
@@ -285,10 +293,17 @@ contract SupplyChain is
             msg.value == items[_upc].productPrice,
             "Insufficient Amount transfered"
         );
+
         items[_upc].consumerID = payable(msg.sender);
         items[_upc].itemState = State.ForSale;
         traceHashes[_upc].buyAsConsumerHash = blockhash(block.number - 1);
 
+        if (
+            items[_upc].distributorID == address(0) &&
+            items[_upc].retailerID == address(0)
+        ) {
+            sellDirectToConsumer(_upc);
+        }
         sellToConsumer(_upc);
 
         if (!isConsumer(msg.sender)) {
@@ -296,7 +311,7 @@ contract SupplyChain is
         }
 
         receiveAsConsumer(_upc);
-        payable(items[_upc].retailerID).transfer(items[_upc].productPrice);
+        items[_upc].ownerID.transfer(items[_upc].productPrice);
 
         emit SoldToConsumer(_upc);
     }
@@ -304,29 +319,39 @@ contract SupplyChain is
     function sellToConsumer(uint256 _upc) private forSale(_upc) {
         items[_upc].itemState = State.SoldToConsumer;
         traceHashes[_upc].sellToConsumerHash = blockhash(block.number - 1);
-        items[_upc].ownerID = items[_upc].consumerID;
+    }
+
+    function sellDirectToConsumer(uint256 _upc) private {
+        items[_upc].itemState = State.SoldToRetail;
+        traceHashes[_upc].sellToDistHash = keccak256(
+            abi.encode("DIRECT_TO_CONSUMER_SALE")
+        );
+        traceHashes[_upc].sellToDistHash = keccak256(
+            abi.encode("DIRECT_TO_RETAILER_SALE")
+        );
+        traceHashes[_upc].sellToRetailHash = blockhash(block.number - 1);
     }
 
     function receiveAsConsumer(uint256 _upc) private soldToConsumer(_upc) {
-        items[_upc].ownerID = payable(msg.sender);
-        items[_upc].consumerID = payable(msg.sender);
+        items[_upc].ownerID = items[_upc].consumerID;
         items[_upc].itemState = State.ReceivedByConsumer;
 
         emit ReceivedByCustomer(_upc);
     }
 
-    //////////////////////////////////////////QUERIES AND CALLS
-    // function buy(uint256 _upc, uint256 _newPrice) external payable {
-    //     if (items[_upc].distributorID == address(0)) {
-    //         buyAsDist(_upc, _newPrice);
-    //     }
-    //     if (items[_upc].retailerID == address(0)) {
-    //         buyAsRetail(_upc, _newPrice);
-    //     } else {
-    //         buyAsConsumer(_upc);
-    //     }
-    // }
+    /******* generic buy *********************************************/
+    function buy(uint256 _upc, uint256 _newPrice) external payable {
+        if (items[_upc].distributorID == address(0)) {
+            buyAsDist(_upc, _newPrice);
+        }
+        if (items[_upc].retailerID == address(0)) {
+            buyAsRetail(_upc, _newPrice);
+        } else {
+            buyAsConsumer(_upc);
+        }
+    }
 
+    //////////////////////////////////////////QUERIES AND CALLS
     /****** farmer query ********************************************/
     function fetchFarmerItems() public view returns (Item[] memory) {
         uint256 totalItemCount = sku.current();
