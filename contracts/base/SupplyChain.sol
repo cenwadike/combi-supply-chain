@@ -477,8 +477,9 @@ contract SupplyChain is
 
         for (uint256 i = 0; i < totalItemCount; i++) {
             if (
-                items[i + 1].distributorID != address(0) &&
-                items[i + 1].retailerID == address(0)
+                items[i + 1].originFarmerID != address(0) &&
+                (items[i + 1].distributorID == address(0) ||
+                    items[i + 1].retailerID == address(0))
             ) {
                 itemCount += 1;
             }
@@ -487,8 +488,9 @@ contract SupplyChain is
         Item[] memory products = new Item[](itemCount);
         for (uint256 i = 0; i <= itemCount; i++) {
             if (
-                items[i + 1].distributorID != address(0) &&
-                items[i + 1].retailerID == address(0)
+                items[i + 1].originFarmerID != address(0) &&
+                (items[i + 1].distributorID == address(0) ||
+                    items[i + 1].retailerID == address(0))
             ) {
                 uint256 currentId = i + 1;
                 Item storage currentproduct = items[currentId];
@@ -537,8 +539,10 @@ contract SupplyChain is
 
         for (uint256 i = 0; i < totalItemCount; i++) {
             if (
-                items[i + 1].retailerID != address(0) &&
-                items[i + 1].consumerID == address(0)
+                items[i + 1].originFarmerID != address(0) &&
+                (items[i + 1].distributorID == address(0) ||
+                    items[i + 1].retailerID == address(0) ||
+                    items[i + 1].consumerID == address(0))
             ) {
                 itemCount += 1;
             }
@@ -547,8 +551,10 @@ contract SupplyChain is
         Item[] memory products = new Item[](itemCount);
         for (uint256 i = 0; i <= itemCount; i++) {
             if (
-                items[i + 1].retailerID != address(0) &&
-                items[i + 1].consumerID == address(0)
+                items[i + 1].originFarmerID != address(0) &&
+                (items[i + 1].distributorID == address(0) ||
+                    items[i + 1].retailerID == address(0) ||
+                    items[i + 1].consumerID == address(0))
             ) {
                 uint256 currentId = i + 1;
                 Item storage currentproduct = items[currentId];

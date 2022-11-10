@@ -176,7 +176,7 @@ export default function Navbar() {
                   : "hidden " + "text-base z-50 float-left py-2 list-none text-left shadow-lg mt-1"
               }
               style={{ minWidth: "12rem" }}>
-              <Link href='/farmerDashboard'>
+              <Link href='/farmer-dashboard'>
                 <a
                   className={
                     "text-sm py-2 px-4 font-normal block w-full whitespace-nowrap text-white hover:text-indigo-300 bg-blue-900 border-0"
@@ -185,7 +185,7 @@ export default function Navbar() {
                   farmer
                 </a>
               </Link>
-              <Link href='/distributorDashboard'>
+              <Link href='/distributor-dashboard'>
                 <a
                   className={
                     "text-sm py-2 px-4 font-normal block w-full whitespace-nowrap text-white hover:text-indigo-300 bg-blue-900 border-0"
@@ -194,7 +194,7 @@ export default function Navbar() {
                   distributor
                 </a>
               </Link>
-              <Link href='/retailerDashboard'>
+              <Link href='/retailer-dashboard'>
                 <a
                   className={
                     "text-sm py-2 px-4 font-normal block w-full whitespace-nowrap text-white hover:text-indigo-300 bg-blue-900 border-0" +
@@ -204,7 +204,7 @@ export default function Navbar() {
                   retailer
                 </a>
               </Link>
-              <Link href='/consumerDashboard'>
+              <Link href='/consumer-dashboard'>
                 <a
                   className='text-sm py-2 px-4 font-normal block w-full whitespace-nowrap text-white hover:text-indigo-300 bg-blue-900 border-0'
                   onClick={() => setRoleButtonText("Consumer")}>

@@ -5,10 +5,10 @@ import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 
 import { supplyChainAddress } from "../config";
-import SupplyChain from "../artifacts_/SupplyChain.json";
+import SupplyChain from "../target/SupplyChain.json";
 
-// dashboard should allow farmer add product to supply chain
-// dashboard should display all of farmer products
+// dashboard allow farmer add product to supply chain
+// dashboard display all of farmer products
 export default function Dashboard() {
   const [userData, setUserData] = useState([]);
   const [loading, setLoading] = useState("loading");

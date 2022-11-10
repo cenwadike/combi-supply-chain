@@ -5,11 +5,11 @@ import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 
 import { supplyChainAddress } from "../config";
-import SupplyChain from "../artifacts_/SupplyChain.json";
+import SupplyChain from "../target/SupplyChain.json";
 
-// dashboard should allow user add product to supply chain
-// dashboard should allow user see for all products
-// dashboard should display all ownerID products
+// dashboard allow user add product to supply chain
+// dashboard allow user see for all products
+// dashboard display all ownerID products
 // allow user change state of product
 export default function Dashboard() {
   const [userData, setUserData] = useState([]);

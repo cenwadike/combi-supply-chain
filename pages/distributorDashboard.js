@@ -5,9 +5,9 @@ import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 
 import { supplyChainAddress } from "../config";
-import SupplyChain from "../artifacts_/SupplyChain.json";
+import SupplyChain from "../target/SupplyChain.json";
 
-// dashboard should display all of distributor products
+// dashboard display all of distributor products
 // allow distributor buy available products
 export default function Dashboard() {
   const [userItems, setUserItems] = useState([]);

@@ -5,6 +5,5 @@ export PATH=$PATH:/home/ce/
 echo "deploying to $1..."
 npx hardhat run scripts/deploy.js --network $1
 
-rm -rf ../artifacts_
-mkdir ../artifacts_
-cp -r artifacts/contracts/base/SupplyChain.sol artifacts_
+rm target/SupplyChain.json
+cp artifacts/contracts/base/SupplyChain.sol/SupplyChain.json target
