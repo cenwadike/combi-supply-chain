@@ -107,7 +107,7 @@ export default function Dashboard() {
     );
 
     setShowModal(false);
-    router.push("/farmerDashboard");
+    router.push("/farmer-dashboard");
   }
 
   //////////////////////////////////display products

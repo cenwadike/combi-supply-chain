@@ -145,7 +145,7 @@ export default function Dashboard() {
     }
 
     setModal(false);
-    router.push("/distributorDashboard");
+    router.push("/distributor-dashboard");
   }
 
   //////////////////////////////////display products
