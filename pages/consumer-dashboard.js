@@ -224,9 +224,9 @@ export default function Dashboard() {
                               {/*content*/}
                               <div className='border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-blue-900 outline-none focus:outline-none'>
                                 {/*header*/}
-                                <div className='flex items-center justify-flex p-5 border-b border-solid border-slate-200 rounded-t text-white'>
-                                  <h3 className='text-3xl font-semibold text-center uppercase pl-5'>
-                                    buy and update price
+                                <div className='justify-center border-b border-solid border-slate-200 rounded-t text-white'>
+                                  <h3 className='text-3xl font-semibold text-center uppercase pt-4'>
+                                    buy product
                                   </h3>
                                   <button
                                     className='p-1 ml-auto bg-transparent border-0 text-black opacity-5 float-right text-3xl leading-none font-semibold outline-none focus:outline-none'
@@ -238,17 +238,17 @@ export default function Dashboard() {
                                 </div>
                                 {/*body*/}
                                 <div className='relative p-6 pb-0 flex-auto'>
-                                  <div className='px-4 flex justify-center'>
+                                  <div className='px-2 flex justify-center'>
                                     <form className='w-full max-w-sm'>
                                       <div className='md:flex md:items-center mb-6'>
-                                        <div className='md:w-2/3'>
+                                        <div className='md:w-3/3'>
                                           <label
                                             className='block text-white font-bold uppercase text-xl md:text-right mb-1 md:mb-0 pr-4'
                                             htmlFor='inline-full-name'>
                                             upc
                                           </label>
                                         </div>
-                                        <div className='md:w-3/5'>
+                                        <div className='md:w-3/3'>
                                           <input
                                             className='bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full text-gray-700 focus:outline-none focus:bg-white focus:border-blue-600'
                                             id='upc'

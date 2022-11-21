@@ -97,18 +97,11 @@ contract SupplyChain is
         _;
     }
 
-    modifier soldToDist(uint256 _upc) {
+    modifier soldByDistributor(uint256 _upc) {
         require(
-            items[_upc].itemState == State.SoldToDist,
-            "INVALID: Not Sold To Distributor"
-        );
-        _;
-    }
-
-    modifier soldToRetailer(uint256 _upc) {
-        require(
-            items[_upc].itemState == State.SoldToRetail,
-            "INVALID: Not Sold To Distributor"
+            traceHashes[_upc].sellToDistHash !=
+                keccak256(abi.encode("DIRECT_TO_RETAILER_SALE")),
+            "INVALID: Not Sold By Distributor"
         );
         _;
     }
@@ -116,15 +109,15 @@ contract SupplyChain is
     modifier soldToConsumer(uint256 _upc) {
         require(
             items[_upc].itemState == State.SoldToConsumer,
-            "INVALID: Not Sold To Distributor"
+            "INVALID: Not Sold To consumer"
         );
         _;
     }
 
-    modifier receivedByRetail(uint256 _upc) {
+    modifier SoldToRetailer(uint256 _upc) {
         require(
-            items[_upc].itemState == State.ReceivedByRetail,
-            "INVALID: Item Not Received"
+            items[_upc].itemState == State.SoldToRetail,
+            "INVALID: Not Sold To retailer"
         );
         _;
     }
@@ -199,6 +192,10 @@ contract SupplyChain is
             "DistributorID cannot be farmerID"
         );
         require(
+            items[_upc].distributorID == address(0),
+            "Already bought by a distributor"
+        );
+        require(
             msg.value == items[_upc].productPrice,
             "Insufficient Amount transfered"
         );
@@ -219,14 +216,11 @@ contract SupplyChain is
     }
 
     //////////////////////////////////////////retailer's call
-    function buyAsRetail(uint256 _upc, uint256 _newPrice)
-        public
-        payable
-        soldToDist(_upc)
-    {
+    function buyAsRetail(uint256 _upc, uint256 _newPrice) public payable {
+        require(msg.sender != items[_upc].ownerID, "Cannot buy from self");
         require(
-            msg.sender != items[_upc].originFarmerID,
-            "RetailerID cannot be DistroID"
+            items[_upc].retailerID == address(0),
+            "Already bought by retailer"
         );
         require(
             msg.value == items[_upc].productPrice,
@@ -241,8 +235,9 @@ contract SupplyChain is
 
         if (items[_upc].distributorID == address(0)) {
             sellDirectToRetailer(_upc, _newPrice);
+        } else {
+            sellToRetail(_upc, _newPrice);
         }
-        sellToRetail(_upc, _newPrice);
 
         if (!isRetailer(msg.sender)) {
             addRetailer(msg.sender);
@@ -256,7 +251,6 @@ contract SupplyChain is
         items[_upc].itemState = State.SoldToRetail;
         items[_upc].productPrice = _newPrice;
         traceHashes[_upc].sellToRetailHash = blockhash(block.number - 1);
-        emit SoldToRetail(_upc);
 
         shipItem(_upc);
     }
@@ -270,24 +264,24 @@ contract SupplyChain is
         traceHashes[_upc].sellToRetailHash = blockhash(block.number - 1);
     }
 
-    function shipItem(uint256 _upc) private soldToRetailer(_upc) {
-        items[_upc].itemState = State.ForSale;
+    function shipItem(uint256 _upc) private soldByDistributor(_upc) {
         items[_upc].ownerID = items[_upc].retailerID;
 
         emit ShippedToRetail(_upc);
     }
 
-    function receiveAsRetail(uint256 _upc) private forSale(_upc) {
+    function receiveAsRetail(uint256 _upc) private SoldToRetailer(_upc) {
         items[_upc].itemState = State.ReceivedByRetail;
 
         emit ReceivedByRetail(_upc);
     }
 
     //////////////////////////////////////////consumer's call
-    function buyAsConsumer(uint256 _upc) public payable receivedByRetail(_upc) {
+    function buyAsConsumer(uint256 _upc) public payable {
+        require(msg.sender != items[_upc].ownerID, "Cannot buy from self");
         require(
-            msg.sender != items[_upc].originFarmerID,
-            "ConsumerID cannot be RetailerID"
+            items[_upc].consumerID == address(0),
+            "Item already bought by consumer"
         );
         require(
             msg.value == items[_upc].productPrice,
@@ -303,8 +297,9 @@ contract SupplyChain is
             items[_upc].retailerID == address(0)
         ) {
             sellDirectToConsumer(_upc);
+        } else {
+            sellToConsumer(_upc);
         }
-        sellToConsumer(_upc);
 
         if (!isConsumer(msg.sender)) {
             addConsumer(msg.sender);
@@ -316,13 +311,13 @@ contract SupplyChain is
         emit SoldToConsumer(_upc);
     }
 
-    function sellToConsumer(uint256 _upc) private forSale(_upc) {
+    function sellToConsumer(uint256 _upc) private {
         items[_upc].itemState = State.SoldToConsumer;
         traceHashes[_upc].sellToConsumerHash = blockhash(block.number - 1);
     }
 
     function sellDirectToConsumer(uint256 _upc) private {
-        items[_upc].itemState = State.SoldToRetail;
+        items[_upc].itemState = State.SoldToConsumer;
         traceHashes[_upc].sellToDistHash = keccak256(
             abi.encode("DIRECT_TO_CONSUMER_SALE")
         );
@@ -417,7 +412,7 @@ contract SupplyChain is
 
         for (uint256 i = 0; i < totalItemCount; i++) {
             if (
-                items[i + 1].originFarmerID != address(0) &&
+                items[i + 1].ownerID != address(0) &&
                 items[i + 1].distributorID == address(0)
             ) {
                 itemCount += 1;
@@ -427,7 +422,7 @@ contract SupplyChain is
         Item[] memory products = new Item[](itemCount);
         for (uint256 i = 0; i <= itemCount; i++) {
             if (
-                items[i + 1].originFarmerID != address(0) &&
+                items[i + 1].ownerID != address(0) &&
                 items[i + 1].distributorID == address(0)
             ) {
                 uint256 currentId = i + 1;
@@ -477,9 +472,8 @@ contract SupplyChain is
 
         for (uint256 i = 0; i < totalItemCount; i++) {
             if (
-                items[i + 1].originFarmerID != address(0) &&
-                (items[i + 1].distributorID == address(0) ||
-                    items[i + 1].retailerID == address(0))
+                items[i + 1].ownerID != address(0) &&
+                items[i + 1].retailerID == address(0)
             ) {
                 itemCount += 1;
             }
@@ -488,9 +482,8 @@ contract SupplyChain is
         Item[] memory products = new Item[](itemCount);
         for (uint256 i = 0; i <= itemCount; i++) {
             if (
-                items[i + 1].originFarmerID != address(0) &&
-                (items[i + 1].distributorID == address(0) ||
-                    items[i + 1].retailerID == address(0))
+                items[i + 1].ownerID != address(0) &&
+                items[i + 1].retailerID == address(0)
             ) {
                 uint256 currentId = i + 1;
                 Item storage currentproduct = items[currentId];
@@ -539,10 +532,8 @@ contract SupplyChain is
 
         for (uint256 i = 0; i < totalItemCount; i++) {
             if (
-                items[i + 1].originFarmerID != address(0) &&
-                (items[i + 1].distributorID == address(0) ||
-                    items[i + 1].retailerID == address(0) ||
-                    items[i + 1].consumerID == address(0))
+                items[i + 1].ownerID != address(0) &&
+                items[i + 1].consumerID == address(0)
             ) {
                 itemCount += 1;
             }
@@ -551,10 +542,8 @@ contract SupplyChain is
         Item[] memory products = new Item[](itemCount);
         for (uint256 i = 0; i <= itemCount; i++) {
             if (
-                items[i + 1].originFarmerID != address(0) &&
-                (items[i + 1].distributorID == address(0) ||
-                    items[i + 1].retailerID == address(0) ||
-                    items[i + 1].consumerID == address(0))
+                items[i + 1].ownerID != address(0) &&
+                items[i + 1].consumerID == address(0)
             ) {
                 uint256 currentId = i + 1;
                 Item storage currentproduct = items[currentId];
