@@ -1,8 +1,8 @@
 # AGROTRACE
 
-Prove the authenticity of agricultural products using the EVM blockchain (Polygon)
+Prove the authenticity of agricultural products using an EVM blockchain (Polygon || Aurora)
 
-## Contract address:
+## Contract address: `supplyChainAddress`
 
 ## Built with
 
@@ -20,7 +20,7 @@ ethersJs v5.6.8
 
 `npx hardhat run scripts/deploy.js` for local env
 
-`npm hardhat run scripts/deploy.sh Mumbai` for testnet env
+`npx hardhat run scripts/deploy.js --network Mumbai` for testnet env
 
 `yarn run dev`
 
@@ -28,4 +28,4 @@ A local client server will be launched
 
 Go to `http://localhost:3000/` in your browser
 
-You also need to have a metamask wallet set up in your browser and configure the network to Mumbai Testnet
+You also need to have a metamask wallet set up in your browser and configure the network to Mumbai or Aurora Testnet
