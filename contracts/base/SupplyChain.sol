@@ -258,6 +258,7 @@ contract SupplyChain is
     function sellDirectToRetailer(uint256 _upc, uint256 _newPrice) private {
         items[_upc].itemState = State.SoldToRetail;
         items[_upc].productPrice = _newPrice;
+        items[_upc].distributorID = payable(address(0));
         traceHashes[_upc].sellToDistHash = keccak256(
             abi.encode("DIRECT_TO_RETAILER_SALE")
         );

@@ -47,7 +47,7 @@ export default function Dashboard() {
         let sku = ethers.utils.formatUnits(i.sku, 0);
         let upc = ethers.utils.formatUnits(i.upc, 0);
 
-        let state = 3;
+        let state;
         switch (i.itemState) {
           case 1:
             state = "On Farmer Sale";
