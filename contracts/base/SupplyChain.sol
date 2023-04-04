@@ -187,6 +187,7 @@ contract SupplyChain is
 
     //////////////////////////////////////////distributor's call
     function buyAsDist(uint256 _upc, uint256 _newPrice) public payable {
+        require(_upc <= upc._value, "ERR: Product does not exist");
         require(
             msg.sender != items[_upc].originFarmerID,
             "DistributorID cannot be farmerID"
@@ -217,6 +218,7 @@ contract SupplyChain is
 
     //////////////////////////////////////////retailer's call
     function buyAsRetail(uint256 _upc, uint256 _newPrice) public payable {
+        require(_upc <= upc._value, "ERR: Product does not exist");
         require(msg.sender != items[_upc].ownerID, "Cannot buy from self");
         require(
             items[_upc].retailerID == address(0),
@@ -279,6 +281,7 @@ contract SupplyChain is
 
     //////////////////////////////////////////consumer's call
     function buyAsConsumer(uint256 _upc) public payable {
+        require(_upc <= upc._value, "ERR: Product does not exist");
         require(msg.sender != items[_upc].ownerID, "Cannot buy from self");
         require(
             items[_upc].consumerID == address(0),
@@ -577,6 +580,8 @@ contract SupplyChain is
         view
         returns (TraceHash[] memory)
     {
+        require(_upc <= upc._value, "ERR: Product does not exist");
+
         uint256 itemCount = sku.current();
         uint256 currentIndex = 0;
 
@@ -597,6 +602,8 @@ contract SupplyChain is
         view
         returns (uint256 price)
     {
+        require(_upc <= upc._value, "ERR: Product does not exist");
+
         Item memory item = items[_upc];
         return item.productPrice;
     }
@@ -606,6 +613,7 @@ contract SupplyChain is
         view
         returns (uint256 itemState)
     {
+        require(_upc <= upc._value, "ERR: Product does not exist");
         Item memory item = items[_upc];
         return uint(item.itemState);
     }

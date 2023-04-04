@@ -7,7 +7,7 @@ describe("SupplyChain", async function () {
     const supplyChain = await SupplyChain.deploy();
     await supplyChain.deployed();
 
-    const [owner, farmer, distributor, retailer, consumer] = await ethers.getSigners();
+    const [farmer, distributor, retailer, consumer] = await ethers.getSigners();
 
     const upc = 1;
     const originFarmerName = "Ahmad Musa";
@@ -38,11 +38,9 @@ describe("SupplyChain", async function () {
     } catch (error) {
       console.log(error);
     }
-    const harvestedState = await supplyChain.fetchCurrentState(1);
-    // expect(harvestedState == 1);
-    console.log("Product state: ", harvestedState);
-    console.log("Product harvested and on sale");
-    console.log("");
+
+    let harvestedState = await supplyChain.fetchCurrentState(1);
+    expect(harvestedState).to.equal(1);
 
     /*********************inter step test********** */
     try {
@@ -72,7 +70,7 @@ describe("SupplyChain", async function () {
       console.log(error);
     }
     try {
-      await supplyChain.connect(retailer).buyAsConsumer(2, { value: retailPrice });
+      await supplyChain.connect(consumer).buyAsConsumer(2, { value: retailPrice });
     } catch (error) {
       console.log(error);
     }
@@ -86,10 +84,7 @@ describe("SupplyChain", async function () {
       console.log(error);
     }
     const buyAsDistState = await supplyChain.fetchCurrentState(1);
-    // expect(buyAsDistState == 2);
-    console.log("Product state: ", buyAsDistState);
-    console.log("Product is sold to distributor and on sale to retailer");
-    console.log("");
+    expect(buyAsDistState).to.equal(2);
 
     ////////////////////////////////retailer action
     try {
@@ -100,10 +95,7 @@ describe("SupplyChain", async function () {
       console.log(error);
     }
     const buyAsRetailState = await supplyChain.fetchCurrentState(1);
-    // expect(buyAsRetailState == 5);
-    console.log("Product state: ", buyAsRetailState);
-    console.log("Product is sold, shipped and received by retailer and on sale to consumer");
-    console.log("");
+    expect(buyAsRetailState).to.equal(5);
 
     ////////////////////////////////consumer action
     try {
@@ -112,10 +104,7 @@ describe("SupplyChain", async function () {
       console.log(error);
     }
     const buyAsConsumerState = await supplyChain.fetchCurrentState(1);
-    // expect(buyAsRetailState == 7);
-    console.log("Product state: ", buyAsConsumerState);
-    console.log("Product bought by customer");
-    console.log("");
+    expect(buyAsConsumerState).to.equal(7);
 
     ////////////////////////////////query blockchain
     console.log("-------------------------------");
